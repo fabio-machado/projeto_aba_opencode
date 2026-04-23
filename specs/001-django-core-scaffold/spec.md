@@ -81,7 +81,7 @@ Como desenvolvedor, quero templates base HTMX + Alpine.js configurados para que 
 - **FR-001**: Sistema DEVE ter estrutura de diretórios `src/` contendo `manage.py`, `config/`, `apps/`, `templates/` e `static/`.
 - **FR-002**: Sistema DEVE usar Django 5.x como framework backend.
 - **FR-003**: Sistema DEVE conter `Dockerfile` e `docker-compose.yml` funcionais na raiz do repositório.
-- **FR-004**: Sistema DEVE conter `requirements.txt` com todas as dependências da stack (Django, django-htmx, supabase-py, stripe, tailwindcss integração, etc.). A integração do Supabase via MCP (Model Context Protocol) deve estar configurada desde o início; a integração do Stripe via MCP será adicionada em momento posterior, após o planejamento.
+- **FR-004**: Sistema DEVE conter `requirements.txt` com todas as dependências da stack (Django, django-htmx, supabase-py, stripe, tailwindcss integração, etc.). As integrações do Supabase e do Stripe via MCP (Model Context Protocol) devem estar configuradas desde o início.
 - **FR-005**: Sistema DEVE conter `.env.example` documentando todas as variáveis obrigatórias.
 - **FR-006**: Sistema DEVE ter configuração de conexão Supabase via `supabase-py` isolada em `services.py`.
 - **FR-007**: Sistema DEVE ter template base `base.html` carregando HTMX, Alpine.js e Tailwind CSS.
@@ -96,7 +96,7 @@ Como desenvolvedor, quero templates base HTMX + Alpine.js configurados para que 
 
 - **Configuração do Projeto**: Settings do Django, variáveis de ambiente, conexão Supabase.
 - **App Core**: App Django de referência demonstrando Service Layer, views mínimas e partials HTMX.
-- **Integrações MCP**: O Supabase está configurado via MCP (Model Context Protocol) desde o início. O Stripe será integrado via MCP em momento posterior; a arquitetura deve nascer preparada para receber essa integração sem retrabalho estrutural.
+- **Integrações MCP**: O Supabase e o Stripe estão configurados via MCP (Model Context Protocol) desde o início.
 
 ## Constraints & Non-Negotiables *(mandatory)*
 
@@ -135,4 +135,5 @@ Como desenvolvedor, quero templates base HTMX + Alpine.js configurados para que 
 - **Q3**: Tailwind CSS deve ser integrado via CDN ou build step? → **A**: Via CDN inicialmente; reavaliar no futuro.
 - **Q4**: Qual a melhor forma de lidar com a integração Stripe via MCP? → **A**: O Stripe usará MCP (Model Context Protocol). A arquitetura deve nascer preparada para receber essa integração sem retrabalho estrutural.
 - **Q5**: Devemos configurar logging nativo desde o início? → **A**: Sim. Configurar log para dar suporte nativo à aplicação desde o início, com níveis e saída estruturada.
+- **Q6** (atualização pós-clarificação): O MCP do Stripe já está habilitado no ambiente; ambas as integrações (Supabase e Stripe) via MCP devem ser configuradas desde o início.
 

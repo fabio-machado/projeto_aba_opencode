@@ -81,7 +81,7 @@ Como desenvolvedor, quero templates base HTMX + Alpine.js configurados para que 
 - **FR-001**: Sistema DEVE ter estrutura de diretórios `src/` contendo `manage.py`, `config/`, `apps/`, `templates/` e `static/`.
 - **FR-002**: Sistema DEVE usar Django 5.x como framework backend.
 - **FR-003**: Sistema DEVE conter `Dockerfile` e `docker-compose.yml` funcionais na raiz do repositório.
-- **FR-004**: Sistema DEVE conter `requirements.txt` com todas as dependências da stack (Django, django-htmx, supabase-py, stripe, tailwindcss integração, etc.).
+- **FR-004**: Sistema DEVE conter `requirements.txt` com todas as dependências da stack (Django, django-htmx, supabase-py, stripe, tailwindcss integração, etc.). A integração do Supabase via MCP (Model Context Protocol) deve estar configurada desde o início; a integração do Stripe via MCP será adicionada em momento posterior, após o planejamento.
 - **FR-005**: Sistema DEVE conter `.env.example` documentando todas as variáveis obrigatórias.
 - **FR-006**: Sistema DEVE ter configuração de conexão Supabase via `supabase-py` isolada em `services.py`.
 - **FR-007**: Sistema DEVE ter template base `base.html` carregando HTMX, Alpine.js e Tailwind CSS.
@@ -89,12 +89,14 @@ Como desenvolvedor, quero templates base HTMX + Alpine.js configurados para que 
 - **FR-009**: Sistema DEVE proibir o uso do ORM Django para dados core de pacientes; `services.py` deve usar `supabase-py`.
 - **FR-010**: Sistema DEVE garantir que UUIDs sejam convertidos para `str(uuid)` antes de operações no SDK Supabase.
 - **FR-011**: Sistema DEVE ter um app de exemplo (`core`) contendo `services.py`, `views.py`, `urls.py` e partials como referência de implementação.
-- **FR-012**: Sistema DEVE ter `settings.py` configurado para `django-htmx` e com separação de settings por ambiente (dev/prod) se necessário.
+- **FR-012**: Sistema DEVE ter settings configuradas para `django-htmx` e com separação obrigatória por ambiente (`dev` e `prd`), garantindo que a arquitetura nasça pronta para ambos os ambientes desde o primeiro commit.
+- **FR-013**: Sistema DEVE ter infraestrutura de logging configurada nativamente desde o início, com suporte a níveis (DEBUG, INFO, WARNING, ERROR) e saída estruturada para auditoria e observabilidade.
 
 ### Key Entities
 
 - **Configuração do Projeto**: Settings do Django, variáveis de ambiente, conexão Supabase.
 - **App Core**: App Django de referência demonstrando Service Layer, views mínimas e partials HTMX.
+- **Integrações MCP**: O Supabase está configurado via MCP (Model Context Protocol) desde o início. O Stripe será integrado via MCP em momento posterior; a arquitetura deve nascer preparada para receber essa integração sem retrabalho estrutural.
 
 ## Constraints & Non-Negotiables *(mandatory)*
 
@@ -122,5 +124,15 @@ Como desenvolvedor, quero templates base HTMX + Alpine.js configurados para que 
 - Docker e Docker Compose estão instalados no ambiente de desenvolvimento.
 - Python 3.12+ está disponível no host ou no container base.
 - O desenvolvedor terá acesso às credenciais do projeto Supabase para configurar o `.env`.
-- Tailwind CSS será integrado via CDN ou build step no container; a configuração inicial não exige pipeline complexo de assets.
+- Tailwind CSS será integrado via CDN inicialmente; reavaliação de pipeline de build será feita em momento futuro.
+
+## Clarifications
+
+### Session 2026-04-23
+
+- **Q1**: O que significa "MCP" no contexto da integração Supabase? → **A**: MCP significa Model Context Protocol. Será usado tanto no Supabase quanto no Stripe. No momento apenas o Supabase está configurado na lista de MCP; o Stripe será adicionado em outro momento, depois do planejamento.
+- **Q2**: A arquitetura deve suportar apenas um ambiente ou múltiplos (dev/prod)? → **A**: A arquitetura deve nascer pronta para ambos os ambientes (dev e prd).
+- **Q3**: Tailwind CSS deve ser integrado via CDN ou build step? → **A**: Via CDN inicialmente; reavaliar no futuro.
+- **Q4**: Qual a melhor forma de lidar com a integração Stripe via MCP? → **A**: O Stripe usará MCP (Model Context Protocol). A arquitetura deve nascer preparada para receber essa integração sem retrabalho estrutural.
+- **Q5**: Devemos configurar logging nativo desde o início? → **A**: Sim. Configurar log para dar suporte nativo à aplicação desde o início, com níveis e saída estruturada.
 

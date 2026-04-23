@@ -100,6 +100,29 @@
 - **[Entity 1]**: [What it represents, key attributes without implementation]
 - **[Entity 2]**: [What it represents, relationships to other entities]
 
+## Constraints & Non-Negotiables *(mandatory)*
+
+<!--
+  ACTION REQUIRED: Verify compliance with project Constitution.
+  Every spec MUST respect the following constraints derived from Core Principles.
+-->
+
+- **UX Fricção Zero**: Nenhuma ação primária pode exceder 5 segundos ou usar
+  `<select>` para inputs frequentes. Área de toque mínima: 48×48 dp.
+- **Anti-SPA**: Proibido uso de React, Vue, Angular ou Svelte. Interatividade
+  via HTMX + Alpine.js apenas.
+- **Service Layer**: Toda lógica de negócio reside em `services.py`; views
+  apenas validam input e retornam response.
+- **Anti-ORM (dados core)**: Dados de pacientes usam `supabase-py`; ORM do
+  Django é proibido para esses dados.
+- **RLS-First**: Toda query em dados de pacientes filtra por `parent_id`;
+  UUIDs serializados como `str(uuid)` antes do SDK Supabase.
+- **Offline-First**: Ações de registro DEVEM persistir em LocalStorage e
+  sincronizar quando online; conflitos usam last-write-wins.
+- **Type Hinting**: Todo código Python DEVE usar type hints estritos.
+- **Lock-in por utilidade**: Nenhuma feature pode dificultar entrada ou
+  exportação de dados do usuário.
+
 ## Success Criteria *(mandatory)*
 
 <!--

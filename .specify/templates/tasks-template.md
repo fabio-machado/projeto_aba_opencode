@@ -148,14 +148,20 @@ Examples of foundational tasks (adjust based on your project):
 
 ## Phase N: Polish & Cross-Cutting Concerns
 
-**Purpose**: Improvements that affect multiple user stories
+**Purpose**: Improvements that affect multiple user stories; Constitution compliance verification
 
 - [ ] TXXX [P] Documentation updates in docs/
 - [ ] TXXX Code cleanup and refactoring
-- [ ] TXXX Performance optimization across all stories
+- [ ] TXXX Performance optimization across all stories (meta: ≤ 5s ABC, ≤ 200ms HTMX swaps)
 - [ ] TXXX [P] Additional unit tests (if requested) in tests/unit/
 - [ ] TXXX Security hardening
 - [ ] TXXX Run quickstart.md validation
+- [ ] TXXX [P] UX Fricção Zero audit: verify all primary actions ≤ 5s, no `<select>` for frequent inputs, touch targets ≥ 48×48 dp
+- [ ] TXXX [P] RLS-First audit: verify all patient-data queries filter by `parent_id`, UUID serialization uses `str(uuid)`, write audits log `user_id/action/timestamp`
+- [ ] TXXX [P] Offline-First audit: verify LocalStorage persistence, sync indicators, last-write-wins conflict logging
+- [ ] TXXX [P] Type hints static analysis check (mypy/pyright) across all Python services
+- [ ] TXXX [P] Anti-SPA verification: no React/Vue/Angular/Svelte introduced; JS per partial ≤ 50 lines or documented
+- [ ] TXXX Service Layer audit: zero business logic in views; all external integrations isolated in `services.py`
 
 ---
 

@@ -17,21 +17,35 @@
   the iteration process.
 -->
 
-**Language/Version**: [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION]  
-**Primary Dependencies**: [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION]  
-**Storage**: [if applicable, e.g., PostgreSQL, CoreData, files or N/A]  
-**Testing**: [e.g., pytest, XCTest, cargo test or NEEDS CLARIFICATION]  
-**Target Platform**: [e.g., Linux server, iOS 15+, WASM or NEEDS CLARIFICATION]
-**Project Type**: [e.g., library/cli/web-service/mobile-app/compiler/desktop-app or NEEDS CLARIFICATION]  
-**Performance Goals**: [domain-specific, e.g., 1000 req/s, 10k lines/sec, 60 fps or NEEDS CLARIFICATION]  
-**Constraints**: [domain-specific, e.g., <200ms p95, <100MB memory, offline-capable or NEEDS CLARIFICATION]  
-**Scale/Scope**: [domain-specific, e.g., 10k users, 1M LOC, 50 screens or NEEDS CLARIFICATION]
+**Language/Version**: Python 3.12  
+**Primary Dependencies**: Django 5.x, django-htmx, HTMX, Alpine.js, Tailwind CSS, supabase-py, Stripe  
+**Storage**: Supabase (PostgreSQL + RLS)  
+**Testing**: pytest, Django TestCase  
+**Target Platform**: Web (Mobile First browsers)
+**Project Type**: web-service  
+**Performance Goals**: Registros ABC ≤ 5s; troca de fragmentos HTMX ≤ 200ms p95  
+**Constraints**: Offline-first via LocalStorage; Anti-SPA; Anti-ORM para dados core de pacientes; área de toque ≥ 48×48 dp  
+**Scale/Scope**: Cuidadores de crianças com TEA; funil Low Ticket → Order Bump → Core SaaS
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+| Principle | Check | Status |
+|-----------|-------|--------|
+| I. UX Fricção Zero | Ações primárias exigem ≤ 5 segundos e área de toque ≥ 48×48 dp? | [ ] |
+| I. UX Fricção Zero | Inputs frequentes usam Toggle/Radio Buttons (nenhum `<select>` primário)? | [ ] |
+| II. SSR Dinâmico | Nenhum framework SPA (React/Vue/Angular/Svelte) proposto? | [ ] |
+| II. SSR Dinâmico | Conteúdo dinâmico usará HTMX com fragmentos `_partial.html`? | [ ] |
+| III. Service Layer | Lógica de negócio isolada em `services.py` (views sem regras)? | [ ] |
+| III. Service Layer | Dados core de pacientes usarão `supabase-py` (Anti-ORM)? | [ ] |
+| III. Service Layer | Type hints estritos definidos para toda interface Python? | [ ] |
+| IV. RLS-First | UUIDs serializados como `str(uuid)` antes do SDK Supabase? | [ ] |
+| IV. RLS-First | Queries filtram por `parent_id = auth.uid()` ou validação equivalente? | [ ] |
+| IV. RLS-First | Escritas em dados de pacientes geram log de auditoria? | [ ] |
+| V. Offline-First | Estado local persiste via Alpine.js + LocalStorage? | [ ] |
+| V. Offline-First | UI indica estado de sincronização (online/offline/pendente)? | [ ] |
+| V. Offline-First | Conflitos usam last-write-wins com log para auditoria? | [ ] |
 
 ## Project Structure
 
@@ -56,39 +70,33 @@ specs/[###-feature]/
 -->
 
 ```text
-# [REMOVE IF UNUSED] Option 1: Single project (DEFAULT)
 src/
-├── models/
-├── services/
-├── cli/
-└── lib/
+├── manage.py
+├── config/
+│   ├── settings.py
+│   ├── urls.py
+│   └── wsgi.py / asgi.py
+├── apps/
+│   ├── [app_name]/
+│   │   ├── services.py
+│   │   ├── views.py
+│   │   ├── urls.py
+│   │   └── templates/
+│   │       └── [app_name]/
+│   │           └── partials/
+│   │               └── _partial.html
+│   └── ...
+├── templates/
+│   └── base.html
+└── static/
+    ├── css/
+    ├── js/
+    └── images/
 
 tests/
 ├── contract/
 ├── integration/
 └── unit/
-
-# [REMOVE IF UNUSED] Option 2: Web application (when "frontend" + "backend" detected)
-backend/
-├── src/
-│   ├── models/
-│   ├── services/
-│   └── api/
-└── tests/
-
-frontend/
-├── src/
-│   ├── components/
-│   ├── pages/
-│   └── services/
-└── tests/
-
-# [REMOVE IF UNUSED] Option 3: Mobile + API (when "iOS/Android" detected)
-api/
-└── [same as backend above]
-
-ios/ or android/
-└── [platform-specific structure: feature modules, UI flows, platform tests]
 ```
 
 **Structure Decision**: [Document the selected structure and reference the real

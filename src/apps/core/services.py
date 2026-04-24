@@ -29,67 +29,6 @@ class BaseService:
         pass
 
 
-class ExampleService(BaseService):
-    """
-    Example service demonstrating the Service Layer Pattern.
-
-    This service provides a reference implementation for future services.
-    All business logic should be isolated in service methods.
-    """
-
-    def get_example_data(self, user_id: UUID) -> Dict[str, Any]:
-        """
-        Retrieve example data for a user.
-
-        Args:
-            user_id: UUID of the authenticated user
-
-        Returns:
-            Dictionary containing example data
-
-        Raises:
-            ValueError: If user_id is invalid
-        """
-        logger.info("Retrieving example data for user_id=%s", user_id)
-        return {
-            "message": "Hello from ExampleService!",
-            "user_id": str(user_id),
-            "status": "active",
-        }
-
-    def create_record(
-        self,
-        user_id: UUID,
-        data: Dict[str, Any],
-    ) -> Dict[str, Any]:
-        """
-        Create a new record with validation.
-
-        Args:
-            user_id: UUID of the authenticated user
-            data: Dictionary containing record data
-
-        Returns:
-            Dictionary with the created record
-
-        Raises:
-            ValueError: If data validation fails
-        """
-        if not data.get("title"):
-            raise ValueError("Title is required")
-
-        if len(data.get("title", "")) < 3:
-            raise ValueError("Title must be at least 3 characters")
-
-        logger.info("Creating record for user_id=%s, title=%s", user_id, data["title"])
-
-        return {
-            "id": str(user_id),
-            "title": data["title"],
-            "status": "active",
-        }
-
-
 class SupabaseService(BaseService):
     """
     Service for interacting with Supabase.

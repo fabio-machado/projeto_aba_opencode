@@ -75,8 +75,8 @@ Final Phase (Polish)
 
 **Independent Test**: `ls src/templates/partials/nav/` retorna 3 arquivos `.html`; `ls src/static/js/` e `ls src/static/css/` existem.
 
-- [ ] T001 Criar estrutura de diretórios para templates e partials em `src/templates/` e `src/templates/partials/nav/`
-- [ ] T002 Criar diretórios para assets estáticos em `src/static/js/` e `src/static/css/`
+- [X] T001 Criar estrutura de diretórios para templates e partials em `src/templates/` e `src/templates/partials/nav/`
+- [X] T002 Criar diretórios para assets estáticos em `src/static/js/` e `src/static/css/`
 
 ---
 
@@ -86,11 +86,11 @@ Final Phase (Polish)
 
 **Independent Test**: Abrir um arquivo HTML simples com o Tailwind CDN configurado mostra `bg-primary` como teal e `text-on-surface` como slate. O modo escuro funciona ao adicionar `class="dark"` no `<html>`.
 
-- [ ] T003 Inserir script anti-FART **inline** no `<head>` de `src/templates/base.html` (síncrono, antes de qualquer CSS) para ler `localStorage.aef_theme` e aplicar classe `dark` no `<html>` antes da renderização
-- [ ] T004 Configurar design tokens no Tailwind CDN em `src/templates/base.html` (cores, fonte, arredondamento, sombras)
-- [ ] T005 Criar `src/static/css/theme.css` com variáveis CSS custom properties como fallback para tokens semânticos
-- [ ] T006 [P] Configurar Google Fonts (Inter) no `<head>` de `src/templates/base.html`
-- [ ] T007 [P] Configurar HTMX, Alpine.js e Heroicons CDN no `<head>` de `src/templates/base.html`
+- [X] T003 Inserir script anti-FART **inline** no `<head>` de `src/templates/base.html` (síncrono, antes de qualquer CSS) para ler `localStorage.aef_theme` e aplicar classe `dark` no `<html>` antes da renderização
+- [X] T004 Configurar design tokens no Tailwind CDN em `src/templates/base.html` (cores, fonte, arredondamento, sombras)
+- [X] T005 Criar `src/static/css/theme.css` com variáveis CSS custom properties como fallback para tokens semânticos
+- [X] T006 [P] Configurar Google Fonts (Inter) no `<head>` de `src/templates/base.html`
+- [X] T007 [P] Configurar HTMX, Alpine.js e Heroicons CDN no `<head>` de `src/templates/base.html`
 
 ---
 
@@ -100,12 +100,12 @@ Final Phase (Polish)
 
 **Independent Test**: Abrir a página em um iPhone 12 Pro (390×844) no DevTools permite tocar em todos os 5 itens da barra inferior com o polegar, sem reajustar a pegada. O conteúdo rola independentemente dos elementos fixos.
 
-- [ ] T008 [US1] Criar `src/templates/base.html` com estrutura mestre (header, main#app-canvas, bottom-nav placeholders)
-- [ ] T009 [US1] Criar `src/templates/partials/nav/_header.html` com logo "Autismo em Foco", placeholder de notificações e menu de perfil
-- [ ] T010 [US1] Implementar header fixo com `position: fixed`, `h-16` (64px), `z-30`, safe-area-inset-top
-- [ ] T011 [P] [US1] Criar `src/templates/partials/nav/_bottom_nav.html` com 5 itens: Início, Rotinas, FAB "+", Guia, Monitor
-- [ ] T012 [P] [US1] Garantir área de toque mínima de 48×48px em todos os itens da bottom nav (`min-w-[48px] min-h-[48px]`)
-- [ ] T013 [US1] Configurar scroll independente do `#app-canvas` com padding compensatório para header e bottom nav (`pt-16 pb-16`)
+- [X] T008 [US1] Criar `src/templates/base.html` com estrutura mestre (header, main#app-canvas, bottom-nav placeholders)
+- [X] T009 [US1] Criar `src/templates/partials/nav/_header.html` com logo "Autismo em Foco", placeholder de notificações e menu de perfil
+- [X] T010 [US1] Implementar header fixo com `position: fixed`, `h-16` (64px), `z-30`, safe-area-inset-top
+- [X] T011 [P] [US1] Criar `src/templates/partials/nav/_bottom_nav.html` com 5 itens: Início, Rotinas, FAB "+", Guia, Monitor
+- [X] T012 [P] [US1] Garantir área de toque mínima de 48×48px em todos os itens da bottom nav (`min-w-[48px] min-h-[48px]`)
+- [X] T013 [US1] Configurar scroll independente do `#app-canvas` com padding compensatório para header e bottom nav (`pt-16 pb-20`)
 
 ---
 
@@ -115,12 +115,12 @@ Final Phase (Polish)
 
 **Independent Test**: Executar Lighthouse Accessibility Audit retorna score ≥ 95. Verificar contraste com axe DevTools em todos os estados (claro, escuro, botão ativo/inativo) passa WCAG AA.
 
-- [ ] T014 [US2] Aplicar classes de cor semântica (`bg-primary`, `text-on-surface`, `bg-error`, etc.) nos elementos do App Shell (`base.html`, `_header.html`, `_bottom_nav.html`, `_bottom_sheet.html`)
-- [ ] T015 [US2] Configurar tipografia Inter com escala de 4 tamanhos (headline 24px, title 20px, body 16px, caption 12px) e pesos (400, 600, 700)
-- [ ] T016 [P] [US2] Implementar dark mode com `darkMode: 'class'` e mapeamento de cores escuras (surface → #0f172a, on-surface → #f8fafc)
-- [ ] T017 [P] [US2] Implementar componente Alpine.js `appShell()` para gerenciar tema (light/dark/system) com persistência em LocalStorage (`aef_theme`)
-- [ ] T018 [P] [US2] Adicionar toggle de tema no menu de perfil do header (ícone sol/lua)
-- [ ] T019 [US2] Garantir transição suave entre temas com `transition-colors duration-200` em todos os elementos interativos
+- [X] T014 [US2] Aplicar classes de cor semântica (`bg-primary`, `text-on-surface`, `bg-error`, etc.) nos elementos do App Shell (`base.html`, `_header.html`, `_bottom_nav.html`, `_bottom_sheet.html`)
+- [X] T015 [US2] Configurar tipografia Inter com escala de 4 tamanhos (headline 24px, title 20px, body 16px, caption 12px) e pesos (400, 600, 700)
+- [X] T016 [P] [US2] Implementar dark mode com `darkMode: 'class'` e mapeamento de cores escuras (surface → #0f172a, on-surface → #f8fafc)
+- [X] T017 [P] [US2] Implementar componente Alpine.js `appShell()` para gerenciar tema (light/dark/system) com persistência em LocalStorage (`aef_theme`)
+- [X] T018 [P] [US2] Adicionar toggle de tema no menu de perfil do header (ícone sol/lua)
+- [X] T019 [US2] Garantir transição suave entre temas com `transition-theme` (color, background-color, border-color, 200ms) em todos os elementos interativos
 
 ---
 
@@ -130,13 +130,13 @@ Final Phase (Polish)
 
 **Independent Test**: Em qualquer tela, tocar no FAB "+" abre o bottom sheet em menos de 200ms. Tocar fora ou deslizar para baixo fecha o painel. Selecionar "Nova Rotina" navega para `/routines/create/`.
 
-- [ ] T020 [US3] Estilizar FAB central com `shadow-lg`, cor primária, tamanho aumentado (`w-14 h-14`), e posicionamento acima da barra de navegação
-- [ ] T021 [US3] Criar `src/templates/partials/nav/_bottom_sheet.html` com overlay e painel deslizante
-- [ ] T022 [P] [US3] Implementar componente Alpine.js `bottomSheet()` com estados (open/closed), ações (Nova Rotina, Novo Registro) e navegação
-- [ ] T023 [P] [US3] Implementar animações de entrada/saída do bottom sheet (`translate-y-full` → `translate-y-0`, opacity fade)
-- [ ] T024 [P] [US3] Implementar fechamento por toque no overlay, swipe para baixo (threshold 80px) e tecla Escape
-- [ ] T025 [US3] Implementar handle indicator (barra cinza no topo do painel) para comunicar affordance de arrasto
-- [ ] T025b [P] [US3] Implementar atributos ARIA no bottom sheet: `role="dialog"`, `aria-modal="true"`, gerenciamento de foco (foco no primeiro item ao abrir, retorno ao FAB ao fechar), e suporte à tecla Escape
+- [X] T020 [US3] Estilizar FAB central com `shadow-lg`, cor primária, tamanho aumentado (`w-14 h-14`), e posicionamento acima da barra de navegação
+- [X] T021 [US3] Criar `src/templates/partials/nav/_bottom_sheet.html` com overlay e painel deslizante
+- [X] T022 [P] [US3] Implementar componente Alpine.js `bottomSheet()` com estados (open/closed), ações (Nova Rotina, Novo Registro) e navegação
+- [X] T023 [P] [US3] Implementar animações de entrada/saída do bottom sheet (`translate-y-full` → `translate-y-0`, opacity fade)
+- [X] T024 [P] [US3] Implementar fechamento por toque no overlay, swipe para baixo (threshold 80px) e tecla Escape
+- [X] T025 [US3] Implementar handle indicator (barra cinza no topo do painel) para comunicar affordance de arrasto
+- [X] T025b [P] [US3] Implementar atributos ARIA no bottom sheet: `role="dialog"`, `aria-modal="true"`, gerenciamento de foco (foco no primeiro item ao abrir, retorno ao FAB ao fechar), e suporte à tecla Escape
 
 ---
 
@@ -146,12 +146,12 @@ Final Phase (Polish)
 
 **Independent Test**: Navegar para a seção "Rotinas" torna o ícone de rotinas preenchido (solid) e verde-teal, enquanto os demais ficam outline e cinza. Em uma subpágina `/routines/123/`, o ícone "Rotinas" continua ativo.
 
-- [ ] T026 [US4] Implementar estado visual de navegação ativa: ícone `solid` + `text-primary` para item ativo; `outline` + `text-gray-400` para inativos
-- [ ] T027 [US4] Configurar `NavigationState` no Alpine.js (`active_section`, `parent_section`) para refletir seção atual
-- [ ] T028 [P] [US4] Implementar badge de notificações no header (stub com contador mock, visível apenas quando `count > 0`)
-- [ ] T029 [P] [US4] Implementar menu de perfil dropdown no header com links para configurações, assinatura (`href="#"` — stub para feature de pagamentos futura) e toggle de tema
-- [ ] T030 [US4] Garantir que subpáginas mantenham o item pai ativo na bottom nav (ex: `/routines/123/` → "Rotinas" ativo)
-- [ ] T030b [P] [US4] Implementar dicionário de mapeamento URL→seção no Alpine.js (`/routines/*` → `routines`, `/monitor/*` → `monitor`, etc.) para alimentar `parent_section`
+- [X] T026 [US4] Implementar estado visual de navegação ativa: ícone `solid` + `text-primary` para item ativo; `outline` + `text-gray-400` para inativos
+- [X] T027 [US4] Configurar `NavigationState` no Alpine.js (`active_section`, `parent_section`) para refletir seção atual
+- [X] T028 [P] [US4] Implementar badge de notificações no header (stub com contador mock, visível apenas quando `count > 0`)
+- [X] T029 [P] [US4] Implementar menu de perfil dropdown no header com links para configurações, assinatura (`href="#"` — stub para feature de pagamentos futura) e toggle de tema
+- [X] T030 [US4] Garantir que subpáginas mantenham o item pai ativo na bottom nav (ex: `/routines/123/` → "Rotinas" ativo)
+- [X] T030b [P] [US4] Implementar dicionário de mapeamento URL→seção no Alpine.js (`/routines/*` → `routines`, `/monitor/*` → `monitor`, etc.) para alimentar `parent_section`
 
 ---
 
@@ -159,8 +159,8 @@ Final Phase (Polish)
 
 **Goal**: Validar acessibilidade, cobrir edge cases e garantir conformidade com a Constitution.
 
-- [ ] T031 [P] Verificar e corrigir edge cases: telas < 360px (labels ocultos), orientação paisagem, teclado virtual, aumento de fonte 200%
-- [ ] T032 [P] Executar Lighthouse Accessibility Audit e validar critérios WCAG AA (contraste, áreas de toque, labels ARIA)
+- [X] T031 [P] Verificar e corrigir edge cases: telas < 360px (labels ocultos), orientação paisagem, teclado virtual, aumento de fonte 200%
+- [X] T032 [P] Executar Lighthouse Accessibility Audit e validar critérios WCAG AA (contraste, áreas de toque, labels ARIA)
 
 ---
 

@@ -1,0 +1,90 @@
+{# src/templates/partials/nav/_bottom_sheet.html #}
+{# Bottom Sheet — Overlay + painel deslizante com ações de criação rápida #}
+{# T021/T023/T024/T025/T025b: Implementação completa #}
+{# Herda x-data de appShell() no <body> — sem escopo isolado #}
+<div
+  x-show="sheetOpen"
+  x-cloak
+  @click.self="closeSheet()"
+  @keydown.escape.window="closeSheet()"
+  class="fixed inset-0 z-40 flex items-end justify-center"
+  role="dialog"
+  aria-modal="true"
+  aria-label="Criar novo registro"
+>
+  {# Overlay (backdrop) — T023: animações de fade #}
+  <div
+    x-show="sheetOpen"
+    x-transition:enter="transition ease-out duration-200"
+    x-transition:enter-start="opacity-0"
+    x-transition:enter-end="opacity-100"
+    x-transition:leave="transition ease-in duration-150"
+    x-transition:leave-start="opacity-100"
+    x-transition:leave-end="opacity-0"
+    class="fixed inset-0 bg-black/40"
+    @click="closeSheet()"
+    aria-hidden="true"
+  ></div>
+
+  {# Painel — T023: animações de slide + T024: swipe + T025b: focus trap #}
+  <div
+    x-show="sheetOpen"
+    x-transition:enter="transition ease-out duration-200"
+    x-transition:enter-start="translate-y-full"
+    x-transition:enter-end="translate-y-0"
+    x-transition:leave="transition ease-in duration-150"
+    x-transition:leave-start="translate-y-0"
+    x-transition:leave-end="translate-y-full"
+    x-data="bottomSheet()"
+    x-init="init()"
+    @touchstart.passive="onTouchStart($event)"
+    @touchend="onTouchEnd($event)"
+    @keydown.tab.prevent.stop="trapFocus($event)"
+    class="relative w-full max-w-6xl bg-surface rounded-t-2xl shadow-lg max-h-[70vh] overflow-y-auto"
+    style="padding-bottom: env(safe-area-inset-bottom)"
+  >
+    {# T025: Handle indicator — affordance de arrasto #}
+    <div class="flex justify-center pt-3 pb-2">
+      <div class="w-10 h-1.5 rounded-full bg-surface-variant"></div>
+    </div>
+
+    {# Ações de criação rápida #}
+    <div class="px-4 pb-6 space-y-3">
+      <p class="text-title font-semibold text-on-surface text-center">
+        Criar rápido
+      </p>
+
+      {# Nova Rotina — T021: navegação real #}
+      <a
+        href="/routines/create/"
+        class="w-full flex items-center gap-3 p-4 rounded-xl
+               bg-surface-variant text-on-surface font-medium
+               min-h-[56px] transition-theme
+               hover:bg-primary/10 active:bg-primary/20"
+        @click="closeSheet()"
+      >
+        <svg class="w-6 h-6 text-primary flex-shrink-0" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round"
+                d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span>Nova Rotina</span>
+      </a>
+
+      {# Novo Registro — T021: navegação real #}
+      <a
+        href="/routines/create/"
+        class="w-full flex items-center gap-3 p-4 rounded-xl
+               bg-surface-variant text-on-surface font-medium
+               min-h-[56px] transition-theme
+               hover:bg-primary/10 active:bg-primary/20"
+        @click="closeSheet()"
+      >
+        <svg class="w-6 h-6 text-primary flex-shrink-0" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round"
+                d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+        </svg>
+        <span>Novo Registro</span>
+      </a>
+    </div>
+  </div>
+</div>

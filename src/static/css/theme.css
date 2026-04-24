@@ -1,0 +1,55 @@
+/**
+ * Autismo em Foco — Theme CSS Custom Properties
+ *
+ * Fallback semântico para design tokens. O Tailwind CDN referencia
+ * estas variáveis via `var(--color-*)`, permitindo dark mode automático
+ * quando a classe `.dark` é aplicada no <html>.
+ *
+ * Anti-FART: a classe .dark é aplicada pelo script síncrono no <head>
+ * ANTES deste CSS ser carregado, evitando flash de tema incorreto.
+ */
+
+/* ── Light Mode (default) ────────────────────────────────────── */
+:root {
+  --color-primary: #14b8a6;          /* Teal-500 */
+  --color-primary-variant: #0d9488;  /* Teal-600 */
+  --color-surface: #f8fafc;          /* Slate-50 */
+  --color-surface-variant: #f1f5f9;  /* Slate-100 */
+  --color-on-surface: #0f172a;       /* Slate-900 */
+  --color-on-surface-muted: #64748b; /* Slate-500 */
+  --color-error: #ef4444;            /* Red-500 */
+  --color-header: #ffffff;           /* White */
+  --color-nav: #ffffff;              /* White */
+  --color-border: #e2e8f0;           /* Slate-200 */
+}
+
+/* ── Dark Mode ───────────────────────────────────────────────── */
+.dark {
+  --color-surface: #0f172a;          /* Slate-900 */
+  --color-surface-variant: #1e293b;  /* Slate-800 */
+  --color-on-surface: #f8fafc;       /* Slate-50 */
+  --color-on-surface-muted: #94a3b8; /* Slate-400 */
+  --color-primary-variant: #2dd4bf;  /* Teal-400 (mais claro p/ dark) */
+  --color-header: #020617;           /* Slate-950 */
+  --color-nav: #020617;              /* Slate-950 */
+  --color-border: #1e293b;           /* Slate-800 */
+}
+
+/* ── Alpine.js x-cloak (evita flicker antes do init) ─────────── */
+[x-cloak] {
+  display: none !important;
+}
+
+/* ── Transições suaves de tema ───────────────────────────────── */
+.transition-theme {
+  transition-property: color, background-color, border-color, fill, stroke;
+  transition-duration: 200ms;
+  transition-timing-function: ease;
+}
+
+/* ── T031: Edge case — telas < 360px ocultam labels da bottom nav ── */
+@media (max-width: 359px) {
+  .nav-label {
+    display: none;
+  }
+}

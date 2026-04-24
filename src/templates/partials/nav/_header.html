@@ -1,0 +1,128 @@
+{# src/templates/partials/nav/_header.html #}
+{# Header fixo — 64px de altura, z-30, safe-area-inset-top #}
+<header
+  class="fixed top-0 left-1/2 -translate-x-1/2 right-auto z-30 w-full max-w-6xl bg-header border-b border-border transition-theme"
+  style="padding-top: env(safe-area-inset-top)"
+>
+  <div class="flex items-center justify-between h-16 px-4">
+
+    {# Logo / Marca #}
+    <a href="/" class="flex items-center gap-2 min-h-[48px]">
+      <svg class="w-7 h-7 text-primary flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z"/>
+      </svg>
+      <span class="text-title font-semibold text-on-surface">Autismo em Foco</span>
+    </a>
+
+    {# Ações do header #}
+    <div class="flex items-center gap-1">
+
+      {# Notificações (stub) — T028: badge de notificações #}
+      <button
+        type="button"
+        class="relative flex items-center justify-center w-12 h-12 rounded-xl
+               text-on-surface-muted hover:text-on-surface hover:bg-surface-variant
+               transition-theme"
+        aria-label="Notificações"
+      >
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round"
+                d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
+        </svg>
+        <span
+          x-show="notificationCount > 0"
+          x-text="notificationCount"
+          x-cloak
+          class="absolute -top-0.5 -right-0.5 bg-error text-white
+                 text-xs font-bold rounded-full w-5 h-5
+                 flex items-center justify-center
+                 shadow-sm"
+        ></span>
+      </button>
+
+      {# Perfil dropdown — T029 #}
+      <div x-data="{ profileOpen: false }" class="relative">
+        <button
+          type="button"
+          @click="profileOpen = !profileOpen"
+          class="flex items-center justify-center w-12 h-12 rounded-xl
+                 text-on-surface-muted hover:text-on-surface hover:bg-surface-variant
+                 transition-theme"
+          :aria-expanded="profileOpen"
+          aria-label="Menu de perfil"
+        >
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+          </svg>
+        </button>
+
+        {# Dropdown menu #}
+        <div
+          x-show="profileOpen"
+          x-cloak
+          @click.outside="profileOpen = false"
+          @keydown.escape.window="profileOpen = false"
+          x-transition:enter="transition ease-out duration-150"
+          x-transition:enter-start="opacity-0 scale-95 -translate-y-1"
+          x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+          x-transition:leave="transition ease-in duration-100"
+          x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+          x-transition:leave-end="opacity-0 scale-95 -translate-y-1"
+          class="absolute right-0 top-full mt-2 w-64 bg-surface
+                 rounded-xl shadow-lg border border-surface-variant
+                 overflow-hidden z-50"
+          role="menu"
+          aria-label="Menu de perfil"
+        >
+          <div class="py-2">
+            <a
+              href="/settings/"
+              class="flex items-center gap-3 px-4 py-3 min-h-[48px]
+                     text-on-surface hover:bg-surface-variant transition-theme"
+              role="menuitem"
+            >
+              <svg class="w-5 h-5 text-on-surface-muted flex-shrink-0" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M9.594 3.94c.09-.542.47-.991.945-1.19a11.002 11.002 0 016.191 0c.475.199.855.648.945 1.19.06.362.152.717.272 1.056a11.002 11.002 0 003.542 3.542c.34.12.694.212 1.056.272.542.09.991.47 1.19.945a11.002 11.002 0 010 6.191c-.199.475-.648.855-1.19.945a11.002 11.002 0 01-1.056.272 11.002 11.002 0 00-3.542 3.542c-.12.34-.212.694-.272 1.056-.09.542-.47.991-.945 1.19a11.002 11.002 0 01-6.191 0c-.475-.199-.855-.648-.945-1.19a11.002 11.002 0 01-.272-1.056 11.002 11.002 0 00-3.542-3.542 11.002 11.002 0 01-1.056-.272c-.542-.09-.991-.47-1.19-.945a11.002 11.002 0 010-6.191c.199-.475.648-.855 1.19-.945a11.002 11.002 0 011.056-.272 11.002 11.002 0 003.542-3.542c.12-.34.212-.694.272-1.056z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              <span class="text-body">Configurações</span>
+            </a>
+
+            <a
+              href="#"
+              class="flex items-center gap-3 px-4 py-3 min-h-[48px]
+                     text-on-surface hover:bg-surface-variant transition-theme"
+              role="menuitem"
+            >
+              <svg class="w-5 h-5 text-on-surface-muted flex-shrink-0" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z" />
+              </svg>
+              <span class="text-body">Assinatura</span>
+            </a>
+
+            <div class="border-t border-surface-variant my-1"></div>
+
+            <button
+              type="button"
+              @click="toggleTheme(); profileOpen = false"
+              class="w-full flex items-center gap-3 px-4 py-3 min-h-[48px]
+                     text-on-surface hover:bg-surface-variant transition-theme text-left"
+              role="menuitem"
+            >
+              <svg class="w-5 h-5 text-on-surface-muted flex-shrink-0" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
+              </svg>
+              <span class="text-body">
+                <span x-text="theme === 'dark' ? 'Modo Claro' : 'Modo Escuro'"></span>
+              </span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>

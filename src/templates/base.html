@@ -1,93 +1,119 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Autismo em Foco - Registro ABA">
-    <title>{% block title %}Autismo em Foco{% endblock %}</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="description" content="Autismo em Foco — Plataforma de Registro ABA">
+  <meta name="theme-color" content="#14b8a6">
+  <title>{% block title %}Autismo em Foco{% endblock %}</title>
 
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
+  {# ── T003: Anti-FART — síncrono, antes de qualquer CSS ────── #}
+  <script>
+    (function() {
+      var t = localStorage.getItem('aef_theme');
+      if (t === 'dark') {
+        document.documentElement.classList.add('dark');
+      }
+    })();
+  </script>
 
-    <!-- HTMX CDN -->
-    <script src="https://unpkg.com/htmx.org@2.0.0"></script>
+  {# ── T006: Google Fonts (Inter) ───────────────────────────── #}
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-    <!-- Alpine.js CDN -->
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.0/dist/cdn.min.js"></script>
+  {# ── T004: Tailwind CSS CDN + Design Tokens ───────────────── #}
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+          },
+          colors: {
+            primary: {
+              DEFAULT: 'var(--color-primary)',
+              variant: 'var(--color-primary-variant)',
+            },
+            surface: {
+              DEFAULT: 'var(--color-surface)',
+              variant: 'var(--color-surface-variant)',
+            },
+            'on-surface': {
+              DEFAULT: 'var(--color-on-surface)',
+              muted: 'var(--color-on-surface-muted)',
+            },
+            error: 'var(--color-error)',
+            header: 'var(--color-header)',
+            nav: 'var(--color-nav)',
+            border: 'var(--color-border)',
+          },
+          fontSize: {
+            headline: ['24px', { lineHeight: '1.33', fontWeight: '700' }],
+            title:    ['20px', { lineHeight: '1.4',  fontWeight: '600' }],
+            body:     ['16px', { lineHeight: '1.5',  fontWeight: '400' }],
+            caption:  ['12px', { lineHeight: '1.5',  fontWeight: '400' }],
+          },
+          borderRadius: {
+            button: '12px',
+            card:   '16px',
+            input:  '8px',
+          },
+        },
+      },
+    };
+  </script>
 
-    <!-- Custom Tailwind Config -->
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    touchAction: {
-                        'manipulation': 'manipulation',
-                    },
-                }
-            }
-        }
-    </script>
+  {# ── T005: Theme CSS (custom properties fallback) ─────────── #}
+  <link href="/static/css/theme.css" rel="stylesheet">
 
-    {% block extra_head %}{% endblock %}
+  {# ── T007: HTMX ───────────────────────────────────────────── #}
+  <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+
+  {# ── T007: Alpine.js ──────────────────────────────────────── #}
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js"></script>
+
+  {% block extra_head %}{% endblock %}
 </head>
-<body hx-boost="true" class="bg-gray-50 min-h-screen">
-    <!-- Sync Status Indicator -->
-    <div
-        x-data="syncStatus()"
-        x-init="init()"
-        class="fixed top-0 left-0 right-0 z-50"
-    >
-        <div
-            x-show="status !== 'online'"
-            x-transition
-            class="flex items-center justify-center gap-2 px-4 py-2 text-white text-sm font-medium"
-            :class="{
-                'bg-red-500': status === 'offline',
-                'bg-yellow-500': status === 'pending'
-            }"
-            role="status"
-            aria-live="polite"
-        >
-            <!-- Offline Icon -->
-            <svg x-show="status === 'offline'" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636a9 9 0 010 12.728m0 0l-2.828-2.828m2.828 2.828L12 21m0 0l-3.536-3.536m3.536 3.536L12 18m0 0l-6.364-6.364m0 0a9 9 0 0112.728 0"></path>
-            </svg>
 
-            <!-- Pending Icon -->
-            <svg x-show="status === 'pending'" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-            </svg>
+{# ── T017: appShell() no body (escopo global) ──────────────── #}
+<body
+  hx-boost="true"
+  hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+  x-data="appShell()"
+  class="bg-surface text-on-surface font-sans min-h-screen transition-theme flex flex-col items-center"
+>
 
-            <span x-text="status === 'offline' ? 'Offline - Ações serão sincronizadas' : 'Pendente - Sincronizando...'"></span>
+  {# ── T008/T009/T010: Header fixo ─────────────────────────── #}
+  {% include "partials/nav/_header.html" %}
 
-            <span x-show="pendingCount > 0" class="ml-2 px-2 py-0.5 bg-white bg-opacity-20 rounded-full text-xs">
-                <span x-text="pendingCount"></span> ação(ões)
-            </span>
-        </div>
-    </div>
+  {# ── T008/T013: Conteúdo scrollável independente ─────────── #}
+  <main id="app-canvas" class="pt-16 pb-20 overflow-y-auto w-full max-w-6xl">
+    {% block content %}{% endblock %}
+  </main>
 
-    <!-- Header -->
-    <header class="bg-white shadow-sm border-b border-gray-200">
-        <div class="max-w-4xl mx-auto px-4 py-4">
-            <h1 class="text-xl font-bold text-gray-900">Autismo em Foco</h1>
-        </div>
-    </header>
+  {# ── T008/T011/T012: Bottom navigation fixa ──────────────── #}
+  {% include "partials/nav/_bottom_nav.html" %}
 
-    <!-- Main Content -->
-    <main class="max-w-4xl mx-auto px-4 py-6">
-        {% block content %}{% endblock %}
-    </main>
+  {# ── T021 (stub): Bottom sheet ───────────────────────────── #}
+  {% include "partials/nav/_bottom_sheet.html" %}
 
-    <!-- Footer -->
-    <footer class="bg-white border-t border-gray-200 mt-8">
-        <div class="max-w-4xl mx-auto px-4 py-4 text-center text-sm text-gray-500">
-            <p>&copy; {% now "Y" %} Autismo em Foco</p>
-        </div>
-    </footer>
+  {# ── Scripts ──────────────────────────────────────────────── #}
+  <script src="/static/js/app-shell.js"></script>
+  <script src="/static/js/bottom-sheet.js"></script>
 
-    <!-- Offline Detection Script -->
-    <script src="/static/js/offline.js"></script>
+  {# ── HTMX + Alpine.js sync: re-detect active section after swap ── #}
+  <script>
+    document.body.addEventListener('htmx:afterSwap', function() {
+      const el = document.querySelector('[x-data]');
+      if (el && el.__x) {
+        el.__x.$data.detectActiveSection();
+      }
+    });
+  </script>
 
-    {% block extra_scripts %}{% endblock %}
+  {% block extra_scripts %}{% endblock %}
 </body>
 </html>

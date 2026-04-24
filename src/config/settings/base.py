@@ -24,6 +24,10 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django_htmx",
     "apps.core",
+    "apps.routines",
+    "apps.guide",
+    "apps.monitor",
+    "apps.settings",
 ]
 
 MIDDLEWARE = [

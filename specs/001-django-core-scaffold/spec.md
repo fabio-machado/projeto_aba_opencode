@@ -81,7 +81,7 @@ Como desenvolvedor, quero templates base HTMX + Alpine.js configurados para que 
 - **FR-001**: Sistema DEVE ter estrutura de diretórios `src/` contendo `manage.py`, `config/`, `apps/`, `templates/` e `static/`.
 - **FR-002**: Sistema DEVE usar Django 5.x como framework backend.
 - **FR-003**: Sistema DEVE conter `Dockerfile` e `docker-compose.yml` funcionais na raiz do repositório.
-- **FR-004**: Sistema DEVE conter `requirements.txt` com todas as dependências da stack (Django, django-htmx, supabase-py, stripe, tailwindcss integração, etc.). As integrações do Supabase e do Stripe via MCP (Model Context Protocol) devem estar configuradas desde o início.
+- **FR-004**: Sistema DEVE conter `requirements.txt` com todas as dependências da stack: Django 5.x, django-htmx, supabase-py, stripe, structlog, python-dotenv, pytest, django-stubs, mypy. As integrações do Supabase e do Stripe via MCP (Model Context Protocol) devem estar configuradas desde o início.
 - **FR-005**: Sistema DEVE conter `.env.example` documentando todas as variáveis obrigatórias.
 - **FR-006**: Sistema DEVE ter configuração de conexão Supabase via `supabase-py` isolada em `services.py`.
 - **FR-007**: Sistema DEVE ter template base `base.html` carregando HTMX, Alpine.js e Tailwind CSS.
@@ -91,6 +91,7 @@ Como desenvolvedor, quero templates base HTMX + Alpine.js configurados para que 
 - **FR-011**: Sistema DEVE ter um app de exemplo (`core`) contendo `services.py`, `views.py`, `urls.py` e partials como referência de implementação.
 - **FR-012**: Sistema DEVE ter settings configuradas para `django-htmx` e com separação obrigatória por ambiente (`dev` e `prd`), garantindo que a arquitetura nasça pronta para ambos os ambientes desde o primeiro commit.
 - **FR-013**: Sistema DEVE ter infraestrutura de logging configurada nativamente desde o início, com suporte a níveis (DEBUG, INFO, WARNING, ERROR) e saída estruturada para auditoria e observabilidade.
+- **FR-014**: Sistema DEVE demonstrar dupla validação de inputs: frontend via Alpine.js (validação em tempo real no navegador) e backend via Django Forms/Serializers antes de qualquer dado alcançar o Supabase. O app `core` deve conter um exemplo funcional de formulário com validação em ambas as camadas.
 
 ### Key Entities
 
@@ -116,8 +117,8 @@ Como desenvolvedor, quero templates base HTMX + Alpine.js configurados para que 
 - **SC-001**: Um novo desenvolvedor consegue executar `docker-compose up --build` e acessar a aplicação em menos de 5 minutos após clonar o repositório.
 - **SC-002**: Todos os 5 princípios da Constitution são verificáveis no código base (checklist de conformidade passa em 100% dos itens).
 - **SC-003**: Nenhum framework SPA (React, Vue, Angular, Svelte) está presente no `requirements.txt`, `package.json` ou templates.
-- **SC-004**: Templates base permitem que um registro ABC seja iniciado em menos de 3 segundos (preparado para a Regra dos 5 Segundos).
-- **SC-005**: A aplicação inicia com sucesso mesmo quando o Supabase está temporariamente indisponível, exibindo estado offline claro.
+- **SC-004**: Template base `base.html` renderiza o primeiro campo interativo (input ou botão de ação) em menos de 3 segundos em conexão 3G simulada, garantindo preparação para a Regra dos 5 Segundos da Constitution.
+- **SC-005**: A aplicação inicia com sucesso mesmo quando o Supabase está temporariamente indisponível, exibindo indicador de estado offline visualmente distinto (cor + ícone + texto) em menos de 2 segundos após a desconexão.
 
 ## Assumptions
 
@@ -130,7 +131,7 @@ Como desenvolvedor, quero templates base HTMX + Alpine.js configurados para que 
 
 ### Session 2026-04-23
 
-- **Q1**: O que significa "MCP" no contexto da integração Supabase? → **A**: MCP significa Model Context Protocol. Será usado tanto no Supabase quanto no Stripe. No momento apenas o Supabase está configurado na lista de MCP; o Stripe será adicionado em outro momento, depois do planejamento.
+- **Q1** (atualizado): O que significa "MCP" e quais integrações serão configuradas? → **A**: MCP significa Model Context Protocol. O Supabase e o Stripe estão configurados via MCP desde o início (ambos habilitados no ambiente).
 - **Q2**: A arquitetura deve suportar apenas um ambiente ou múltiplos (dev/prod)? → **A**: A arquitetura deve nascer pronta para ambos os ambientes (dev e prd).
 - **Q3**: Tailwind CSS deve ser integrado via CDN ou build step? → **A**: Via CDN inicialmente; reavaliar no futuro.
 - **Q4**: Qual a melhor forma de lidar com a integração Stripe via MCP? → **A**: O Stripe usará MCP (Model Context Protocol). A arquitetura deve nascer preparada para receber essa integração sem retrabalho estrutural.

@@ -27,7 +27,7 @@
 - [ ] T001 Create `.gitignore` for Python/Django project at repository root
 - [ ] T002 [P] Create `requirements.txt` with Django 5.x, django-htmx, supabase-py, stripe, structlog, python-dotenv, pytest, django-stubs, mypy at repository root
 - [ ] T003 [P] Create `.env.example` documenting all required environment variables (SUPABASE_URL, SUPABASE_KEY, STRIPE_SECRET_KEY, STRIPE_PUBLISHABLE_KEY, SECRET_KEY, DEBUG, LOG_LEVEL) at repository root
-- [ ] T004 [P] Create `Dockerfile` using `python:3.12-slim` with multi-stage build considerations at repository root
+- [ ] T004 [P] Create initial `Dockerfile` using `python:3.12-slim` with Python base image, non-root user, and working directory set at repository root
 - [ ] T005 Create `docker-compose.yml` with web service, volume mounts for hot-reload, and environment variable passthrough at repository root
 - [ ] T006 [P] Create `tests/` directory structure (`contract/`, `integration/`, `unit/`) at repository root
 - [ ] T007 [P] Create `mypy.ini` with strict mode configuration for Python 3.12 and django-stubs at repository root
@@ -45,7 +45,7 @@
 - [ ] T008 Create `src/manage.py` with `DJANGO_SETTINGS_MODULE=config.settings.dev` default
 - [ ] T009 [P] Create `src/config/__init__.py`
 - [ ] T010 [P] Create `src/config/settings/__init__.py`
-- [ ] T011 Create `src/config/settings/base.py` with shared settings (INSTALLED_APPS including django_htmx, MIDDLEWARE, TEMPLATES config, STATIC_URL, ROOT_URLCONF)
+- [ ] T011 Create `src/config/settings/base.py` with shared settings: INSTALLED_APPS (including `django_htmx`), MIDDLEWARE (including `django_htmx.middleware.HtmxMiddleware`), TEMPLATES config, STATIC_URL, ROOT_URLCONF
 - [ ] T012 [P] Create `src/config/settings/dev.py` inheriting from base.py with DEBUG=True, LOG_LEVEL=DEBUG, and dev-specific middleware
 - [ ] T013 [P] Create `src/config/settings/prd.py` inheriting from base.py with DEBUG=False, LOG_LEVEL=INFO, and security headers (SECURE_SSL_REDIRECT, SECURE_HSTS_SECONDS)
 - [ ] T014 Create `src/config/urls.py` with root URL configuration and inclusion pattern for app URLs
@@ -77,6 +77,7 @@
 - [ ] T027 [US1] Create `src/apps/core/templates/core/partials/_example_partial.html` as HTMX partial reference
 - [ ] T028 [US1] Register `core` app in `src/config/settings/base.py` INSTALLED_APPS
 - [ ] T029 [US1] Include `core.urls` in `src/config/urls.py`
+- [ ] T065 [US1] Create `src/apps/core/forms.py` with a Django Form example demonstrating backend validation (required fields, min/max length) per dual-validation requirement
 
 **Checkpoint**: At this point, User Story 1 should be fully functional. `manage.py check` passes and core app structure exists as template for future apps.
 
@@ -92,10 +93,10 @@
 
 - [ ] T030 [US2] Add Docker volume mount for `src/` in `docker-compose.yml` to enable hot-reload
 - [ ] T031 [US2] Add `DJANGO_SETTINGS_MODULE=config.settings.dev` to Docker Compose environment
-- [ ] T032 [US2] Configure `Dockerfile` to install dependencies from `requirements.txt` and set working directory
+- [ ] T032 [US2] Add Django-specific CMD (`python src/manage.py runserver 0.0.0.0:8000` for dev) and healthcheck to existing `Dockerfile`
 - [ ] T033 [US2] Add healthcheck endpoint in `src/config/urls.py` or `src/apps/core/views.py` for Docker health verification
-- [ ] T034 [US2] Test `docker-compose up --build` and verify app responds on port 8000
-- [ ] T035 [US2] Verify hot-reload: modify `src/apps/core/views.py` and confirm change reflects without `docker-compose restart`
+- [ ] T034 [US2] Test `docker-compose up --build` and verify app responds with HTTP 200 on `GET http://localhost:8000/` within 10 seconds of container start
+- [ ] T035 [US2] Verify hot-reload: modify `src/apps/core/views.py`, save, and confirm content change is visible in browser within 5 seconds without `docker-compose restart`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently. Containerized environment matches Constitution requirements.
 
@@ -141,6 +142,7 @@
 - [ ] T052 [US4] Update `src/apps/core/templates/core/partials/_example_partial.html` to demonstrate HTMX swap with button touch target ≥ 48×48 dp and contrast ≥ 4.5:1
 - [ ] T053 [US4] Add `hx-boost="true"` to `base.html` body for progressive enhancement via HTMX
 - [ ] T054 [US4] Ensure `base.html` loads `offline.js` and initializes offline detection on page load
+- [ ] T066 [US4] Add Alpine.js frontend validation to `_example_partial.html` (real-time field validation: required, min-length) to demonstrate dual-validation pattern per Constitution
 
 **Checkpoint**: All user stories should now be independently functional. Templates render with all Constitution-required libraries and offline-first behavior.
 
@@ -151,15 +153,16 @@
 **Purpose**: Constitution compliance verification and final validation
 
 - [ ] T055 [P] Run `python src/manage.py check` and fix any issues
-- [ ] T056 [P] Run `mypy src/` and fix all type hint violations
 - [ ] T057 [P] UX Fricção Zero audit: verify all primary buttons have `min-w-[48px] min-h-[48px]`, contrast ≥ 4.5:1, no `<select>` for frequent inputs in `src/apps/core/templates/`
 - [ ] T058 [P] RLS-First audit: verify all `SupabaseService` queries include `eq("parent_id", ...)` filter and UUIDs use `serialize_uuid()`
-- [ ] T059 [P] Offline-First audit: verify `offline.js` persists to LocalStorage, displays sync indicator, and implements last-write-wins
+- [ ] T059 [P] Offline-First audit: verify `offline.js` persists to LocalStorage, implements last-write-wins, and displays sync indicator visually distinct (color + icon + text) within 2 seconds of disconnect
 - [ ] T060 [P] Anti-SPA verification: confirm no React/Vue/Angular/Svelte in `requirements.txt` or templates
 - [ ] T061 [P] Service Layer audit: confirm zero business logic in `src/apps/core/views.py`; all external calls isolated in `src/apps/core/services.py`
 - [ ] T062 [P] Type hints static analysis check: run `mypy --strict src/` and ensure zero errors
 - [ ] T063 [P] Update `AGENTS.md` quickstart validation if any paths changed during implementation
 - [ ] T064 [P] Run `docker-compose up --build` final validation: app boots in < 5 minutes from clean clone
+- [ ] T067 [P] JS limit audit: verify no inline or custom JavaScript in any `_partial.html` exceeds 50 lines without documented justification in code comment
+- [ ] T068 [P] Performance audit: measure `base.html` Time-to-Interactive (first interactive input visible) via browser DevTools on simulated 3G; must be < 3 seconds
 
 ---
 
@@ -195,7 +198,7 @@
 - All Foundational tasks marked [P] can run in parallel (T009-T016)
 - Different services in US3 can be worked on in parallel (T036-T037)
 - CDN scripts in US4 can be added in parallel (T046-T048)
-- All audit tasks in Polish phase marked [P] can run in parallel
+- All audit tasks in Polish phase marked [P] can run in parallel (T055, T057-T068)
 
 ---
 

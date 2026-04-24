@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Autismo em Foco - Registro ABA">
+    <title>{% block title %}Autismo em Foco{% endblock %}</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- HTMX CDN -->
+    <script src="https://unpkg.com/htmx.org@2.0.0"></script>
+
+    <!-- Alpine.js CDN -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.0/dist/cdn.min.js"></script>
+
+    <!-- Custom Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    touchAction: {
+                        'manipulation': 'manipulation',
+                    },
+                }
+            }
+        }
+    </script>
+
+    {% block extra_head %}{% endblock %}
+</head>
+<body hx-boost="true" class="bg-gray-50 min-h-screen">
+    <!-- Sync Status Indicator -->
+    <div
+        x-data="syncStatus()"
+        x-init="init()"
+        class="fixed top-0 left-0 right-0 z-50"
+    >
+        <div
+            x-show="status !== 'online'"
+            x-transition
+            class="flex items-center justify-center gap-2 px-4 py-2 text-white text-sm font-medium"
+            :class="{
+                'bg-red-500': status === 'offline',
+                'bg-yellow-500': status === 'pending'
+            }"
+            role="status"
+            aria-live="polite"
+        >
+            <!-- Offline Icon -->
+            <svg x-show="status === 'offline'" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636a9 9 0 010 12.728m0 0l-2.828-2.828m2.828 2.828L12 21m0 0l-3.536-3.536m3.536 3.536L12 18m0 0l-6.364-6.364m0 0a9 9 0 0112.728 0"></path>
+            </svg>
+
+            <!-- Pending Icon -->
+            <svg x-show="status === 'pending'" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+
+            <span x-text="status === 'offline' ? 'Offline - Ações serão sincronizadas' : 'Pendente - Sincronizando...'"></span>
+
+            <span x-show="pendingCount > 0" class="ml-2 px-2 py-0.5 bg-white bg-opacity-20 rounded-full text-xs">
+                <span x-text="pendingCount"></span> ação(ões)
+            </span>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-4xl mx-auto px-4 py-4">
+            <h1 class="text-xl font-bold text-gray-900">Autismo em Foco</h1>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-4xl mx-auto px-4 py-6">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 mt-8">
+        <div class="max-w-4xl mx-auto px-4 py-4 text-center text-sm text-gray-500">
+            <p>&copy; {% now "Y" %} Autismo em Foco</p>
+        </div>
+    </footer>
+
+    <!-- Offline Detection Script -->
+    <script src="/static/js/offline.js"></script>
+
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

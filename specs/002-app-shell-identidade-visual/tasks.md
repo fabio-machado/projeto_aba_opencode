@@ -12,7 +12,7 @@
 
 | Metric | Value |
 |--------|-------|
-| Total Tasks | 32 |
+| Total Tasks | 34 |
 | Setup Tasks | 2 |
 | Foundational Tasks | 5 |
 | US1 Tasks (P1) | 6 |
@@ -44,11 +44,11 @@ Phase 4 (US2 - Identidade Visual Calm e Acessível)
 
 Phase 5 (US3 - Criação Rápida de Registros)
   └── T019 → T020 → T021
-  └── T022 [P] → T023 [P] → T024 [P]
+  └── T022 [P] → T023 [P] → T024 [P] → T025b [P]
 
 Phase 6 (US4 - Orientação Visual de Navegação)
   └── T025 → T026 → T027
-  └── T028 [P] → T029 [P]
+  └── T028 [P] → T029 [P] → T030b [P]
 
 Final Phase (Polish)
   └── T030 → T031
@@ -86,7 +86,7 @@ Final Phase (Polish)
 
 **Independent Test**: Abrir um arquivo HTML simples com o Tailwind CDN configurado mostra `bg-primary` como teal e `text-on-surface` como slate. O modo escuro funciona ao adicionar `class="dark"` no `<html>`.
 
-- [ ] T003 Criar `src/static/js/theme.js` com script anti-FART para dark mode (leitura de LocalStorage antes de renderização)
+- [ ] T003 Inserir script anti-FART **inline** no `<head>` de `src/templates/base.html` (síncrono, antes de qualquer CSS) para ler `localStorage.aef_theme` e aplicar classe `dark` no `<html>` antes da renderização
 - [ ] T004 Configurar design tokens no Tailwind CDN em `src/templates/base.html` (cores, fonte, arredondamento, sombras)
 - [ ] T005 Criar `src/static/css/theme.css` com variáveis CSS custom properties como fallback para tokens semânticos
 - [ ] T006 [P] Configurar Google Fonts (Inter) no `<head>` de `src/templates/base.html`
@@ -115,7 +115,7 @@ Final Phase (Polish)
 
 **Independent Test**: Executar Lighthouse Accessibility Audit retorna score ≥ 95. Verificar contraste com axe DevTools em todos os estados (claro, escuro, botão ativo/inativo) passa WCAG AA.
 
-- [ ] T014 [US2] Aplicar paleta de cores nos tokens Tailwind: primary (#14b8a6), surface (#f8fafc), on-surface (#0f172a), error (#ef4444)
+- [ ] T014 [US2] Aplicar classes de cor semântica (`bg-primary`, `text-on-surface`, `bg-error`, etc.) nos elementos do App Shell (`base.html`, `_header.html`, `_bottom_nav.html`, `_bottom_sheet.html`)
 - [ ] T015 [US2] Configurar tipografia Inter com escala de 4 tamanhos (headline 24px, title 20px, body 16px, caption 12px) e pesos (400, 600, 700)
 - [ ] T016 [P] [US2] Implementar dark mode com `darkMode: 'class'` e mapeamento de cores escuras (surface → #0f172a, on-surface → #f8fafc)
 - [ ] T017 [P] [US2] Implementar componente Alpine.js `appShell()` para gerenciar tema (light/dark/system) com persistência em LocalStorage (`aef_theme`)
@@ -136,6 +136,7 @@ Final Phase (Polish)
 - [ ] T023 [P] [US3] Implementar animações de entrada/saída do bottom sheet (`translate-y-full` → `translate-y-0`, opacity fade)
 - [ ] T024 [P] [US3] Implementar fechamento por toque no overlay, swipe para baixo (threshold 80px) e tecla Escape
 - [ ] T025 [US3] Implementar handle indicator (barra cinza no topo do painel) para comunicar affordance de arrasto
+- [ ] T025b [P] [US3] Implementar atributos ARIA no bottom sheet: `role="dialog"`, `aria-modal="true"`, gerenciamento de foco (foco no primeiro item ao abrir, retorno ao FAB ao fechar), e suporte à tecla Escape
 
 ---
 
@@ -148,8 +149,9 @@ Final Phase (Polish)
 - [ ] T026 [US4] Implementar estado visual de navegação ativa: ícone `solid` + `text-primary` para item ativo; `outline` + `text-gray-400` para inativos
 - [ ] T027 [US4] Configurar `NavigationState` no Alpine.js (`active_section`, `parent_section`) para refletir seção atual
 - [ ] T028 [P] [US4] Implementar badge de notificações no header (stub com contador mock, visível apenas quando `count > 0`)
-- [ ] T029 [P] [US4] Implementar menu de perfil dropdown no header com links para configurações, assinatura e toggle de tema
+- [ ] T029 [P] [US4] Implementar menu de perfil dropdown no header com links para configurações, assinatura (`href="#"` — stub para feature de pagamentos futura) e toggle de tema
 - [ ] T030 [US4] Garantir que subpáginas mantenham o item pai ativo na bottom nav (ex: `/routines/123/` → "Rotinas" ativo)
+- [ ] T030b [P] [US4] Implementar dicionário de mapeamento URL→seção no Alpine.js (`/routines/*` → `routines`, `/monitor/*` → `monitor`, etc.) para alimentar `parent_section`
 
 ---
 

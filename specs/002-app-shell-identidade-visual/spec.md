@@ -79,30 +79,31 @@ Como usuário, quero saber claramente em qual seção do aplicativo estou, para 
 - **Dark mode do sistema alterado enquanto app está aberto**: A interface deve responder à mudança do sistema operacional em tempo real, sem exigir recarregamento manual da página.
 - **Notificação push recebida enquanto usuário interage com bottom sheet**: O bottom sheet deve permanecer aberto; a notificação deve ser indicada no header sem interromper o fluxo de criação.
 - **Usuário com deficiência visual (aumento de fonte do sistema em 200%)**: Todos os textos da interface devem escalar proporcionalmente sem truncamento ou sobreposição de elementos.
+- **Primeiro acesso em novo dispositivo**: Como a preferência de tema é armazenada no LocalStorage, ao acessar de um novo dispositivo ou navegador, o sistema deve detectar a preferência do sistema operacional e aplicá-la imediatamente, sem exigir login ou configuração manual.
 
 ## Requirements *(mandatory)*
 
 ### Functional Requirements
 
 - **FR-001**: Sistema DEVE usar tokens de design semânticos (ex: `color-surface`, `color-on-surface`, `color-primary`) desde o início, permitindo futura extensão para múltiplos temas sem alteração de código nos componentes.
-- **FR-002**: Sistema DEVE oferecer suporte nativo a modo claro e modo escuro desde a primeira versão, com transição suave entre os modos.
-- **FR-003**: Sistema DEVE utilizar uma tipografia moderna e altamente legível, otimizada para leitura prolongada em telas mobile.
+- **FR-002**: Sistema DEVE oferecer suporte nativo a modo claro e modo escuro desde a primeira versão, com transição suave entre os modos. A preferência do usuário (claro/escuro/sistema) DEVE ser persistida no LocalStorage do navegador; caso não haja preferência salva, o sistema DEVE adotar automaticamente a preferência do sistema operacional.
+- **FR-003**: Sistema DEVE utilizar a família tipográfica **Inter** (Google Fonts) como padrão, com escala de 4 tamanhos: base 16px, headline 24px, title 20px, caption 12px. A tipografia deve ser otimizada para leitura prolongada em telas mobile.
 - **FR-004**: Sistema DEVE garantir que todos os botões e áreas interativas tenham dimensão mínima de toque de 48×48 pixels, conforme diretrizes de acessibilidade mobile.
-- **FR-005**: Sistema DEVE aplicar bordas arredondadas consistentes (grau arredondado elevado) em todos os botões e cards principais, transmitindo suavidade visual.
+- **FR-005**: Sistema DEVE aplicar bordas arredondadas consistentes em todos os botões e cards principais: botões `rounded-xl` (12px), cards `rounded-2xl` (16px), inputs `rounded-lg` (8px). O grid de espaçamento base é 4px com múltiplos definidos (4, 8, 12, 16, 24, 32, 48).
 - **FR-006**: Sistema DEVE apresentar um cabeçalho fixo no topo da tela contendo identidade da marca (logo/nome), indicador de notificações e menu de acesso rápido ao perfil do usuário.
 - **FR-007**: Sistema DEVE apresentar uma área de conteúdo central com scroll independente, identificada semanticamente para permitir atualizações parciais de conteúdo sem recarregamento da página inteira.
 - **FR-008**: Sistema DEVE apresentar uma barra de navegação inferior fixa contendo exatamente 5 itens: Início, Rotinas, botão de ação central "+" (FAB), Guia e Monitor.
-- **FR-009**: Sistema DEVE fazer com que o botão "+" central seja visualmente distinto dos demais itens da barra (estilo FAB — Floating Action Button), destacando-se em tamanho, cor e/ou elevação.
+- **FR-009**: Sistema DEVE fazer com que o botão "+" central seja visualmente distinto dos demais itens da barra (estilo FAB — Floating Action Button), destacando-se em tamanho, cor e elevação `shadow-lg` (nível mais alto de sombra).
 - **FR-010**: Sistema DEVE, ao tocar no botão "+", apresentar um painel deslizante da base (bottom sheet) com 2–3 atalhos de criação rápida, como "Nova Rotina" e "Novo Registro".
 - **FR-011**: Sistema DEVE comunicar visualmente o estado ativo de um item na barra de navegação usando ícone preenchido (sólido) na cor primária; itens inativos devem usar ícone em contorno (outline) na cor neutra (cinza).
 - **FR-012**: Sistema DEVE manter a barra de navegação inferior acessível em todos os contextos de uso, respeitando o "Teste do Supermercado" — todas as ações primárias devem ser alcançáveis com o polegar em uma mão.
-- **FR-013**: Sistema DEVE garantir que a paleta de cores primária seja baseada em tons de verde-teal, associados a calma e confiança, e que o contraste entre texto e fundo atenda aos critérios mínimos WCAG AA.
+- **FR-013**: Sistema DEVE garantir que a paleta de cores primária seja baseada em tons de verde-teal, associados a calma e confiança, e que o contraste entre texto e fundo atenda aos critérios mínimos WCAG AA. A paleta concreta adotada é: primary Teal-500 (#14b8a6), primary-variant Teal-600 (#0d9488), surface Slate-50 (#f8fafc), surface-variant Slate-100 (#f1f5f9), on-surface Slate-900 (#0f172a), error Red-500 (#ef4444).
 - **FR-014**: Sistema DEVE permitir acesso ao menu de perfil do usuário a partir do cabeçalho, contendo opções de configurações, gerenciamento de assinatura e alternância de tema claro/escuro.
 - **FR-015**: Sistema DEVE garantir que o scroll do conteúdo principal seja independente dos elementos fixos (header e barra inferior), sem que o conteúdo fique oculto atrás desses elementos.
 
 ### Key Entities
 
-- **Design Token**: Conjunto de variáveis semânticas que definem cores, tipografia, espaçamento e elevação. Exemplos: `color-surface`, `color-on-surface`, `color-primary`, `color-primary-variant`, `color-error`, `typography-headline`, `spacing-base`.
+- **Design Token**: Conjunto de variáveis semânticas que definem cores, tipografia, espaçamento, elevação e arredondamento. Exemplos concretos: `color-primary` (#14b8a6), `color-primary-variant` (#0d9488), `color-surface` (#f8fafc), `color-surface-variant` (#f1f5f9), `color-on-surface` (#0f172a), `color-error` (#ef4444), `typography-headline` (Inter 24px/700), `typography-title` (Inter 20px/600), `typography-body` (Inter 16px/400), `typography-caption` (Inter 12px/400), `spacing-base` (4px), `border-radius-button` (12px), `border-radius-card` (16px), `border-radius-input` (8px), `shadow-sm`, `shadow-md`, `shadow-lg`.
 - **App Shell**: Estrutura mestre da interface composta por Header (topo), Main Content (centro) e Bottom Navigation (base). É o container que permanece estável enquanto o conteúdo muda.
 - **Bottom Sheet**: Painel deslizante que surge da base da tela quando o botão "+" é acionado, apresentando atalhos de criação rápida.
 - **Navigation State**: Estado atual da aplicação que determina qual seção está ativa, refletido visualmente na barra inferior via ícone sólido/outline e cor primária/cinza.
@@ -129,11 +130,20 @@ Como usuário, quero saber claramente em qual seção do aplicativo estou, para 
 - **SC-005**: A interface mantém legibilidade completa quando o usuário ativa o aumento de fonte do sistema operacional em até 200%, sem truncamento de textos ou sobreposição de elementos em telas de 360px de largura.
 - **SC-006**: 90% dos usuários em teste de usabilidade não estruturado conseguem identificar corretamente em qual seção do aplicativo estão apenas observando a barra de navegação inferior, sem necessidade de ler o conteúdo da tela.
 
+## Clarifications
+
+### Session 2026-04-24
+
+- **Q1**: Quais são os valores concretos da paleta de cores para os tokens semânticos principais? → **A**: Paleta Teal Calm baseada no Tailwind CSS — primary: Teal-500 (#14b8a6), primary-variant: Teal-600 (#0d9488), surface: Slate-50 (#f8fafc), surface-variant: Slate-100 (#f1f5f9), on-surface: Slate-900 (#0f172a), error: Red-500 (#ef4444).
+- **Q2**: Qual fonte e escala tipográfica devem ser adotadas como padrão do sistema? → **A**: Inter (Google Fonts) com escala de 4 tamanhos: base 16px, headline 24px, title 20px, caption 12px.
+- **Q3**: Quais devem ser os valores base de espaçamento (grid), níveis de arredondamento e elevação (shadow) para os design tokens? → **A**: Grid 4px com múltiplos (4, 8, 12, 16, 24, 32, 48). Arredondamento: botões `rounded-xl` (12px), cards `rounded-2xl` (16px), inputs `rounded-lg` (8px). Elevação: 3 níveis de sombra (`shadow-sm`, `shadow-md`, `shadow-lg`).
+- **Q4**: Onde a preferência de tema (claro/escuro/sistema) do usuário deve ser persistida? → **A**: LocalStorage do navegador, com fallback automático para preferência do sistema operacional quando não houver escolha manual salva.
+
 ## Assumptions
 
 - O público-alvo principal utiliza smartphones Android e iOS modernos (últimos 3 anos), com telas entre 5,5 e 6,7 polegadas.
 - O aplicativo será utilizado predominantemente em modo retrato (portrait); o modo paisagem (landscape) é suportado mas não otimizado como experiência primária.
-- A fonte tipográfica escolhida (Inter ou similar) está disponível via CDN ou está incluída no pacote de assets, sem restrições de licenciamento para uso comercial.
+- A fonte tipográfica escolhida é a **Inter** (Google Fonts), disponível via CDN, sob licença SIL Open Font License, sem restrições de licenciamento para uso comercial.
 - O dark mode será respeitado conforme preferência do sistema operacional por padrão, podendo ser sobrescrito manualmente pelo usuário no menu de perfil.
 - A barra de navegação inferior sempre terá exatamente 5 itens; adições futuras exigirão reavaliação do padrão de navegação (ex: drawer ou menu secundário).
 - O botão "+" sempre apresentará as opções "Nova Rotina" e "Novo Registro" no bottom sheet; uma terceira opção pode ser adicionada futuramente conforme evolução do produto.

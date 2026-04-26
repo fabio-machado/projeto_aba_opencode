@@ -10,7 +10,7 @@
 ### Architecture
 - **Frontend**: Django templates + HTMX + Alpine.js (Anti-SPA per Constitution)
 - **Backend**: Django 5.x views (thin) + Python services (business logic in `services.py`)
-- **Database**: Supabase PostgreSQL with `supabase-py` client (Anti-ORM for core data)
+- **Database**: Supabase PostgreSQL with `supabase-py` client (Anti-ORM: Django ORM is prohibited for all core user/profile data)
 - **Auth**: Supabase Auth with magic links, 90-day JWT sessions
 - **Payment**: Stripe Checkout + Webhooks
 
@@ -33,7 +33,7 @@
 | UX Fricção Zero | ✅ Pass | Webhook is backend-only; no user-facing latency concerns |
 | Anti-SPA | ✅ Pass | No React/Vue/Angular; HTMX + Alpine.js only |
 | Service Layer | ✅ Pass | All business logic in `services.py`; views are thin adapters |
-| Anti-ORM (dados core) | ✅ Pass | `supabase-py` for all profile/user data; Django ORM only for Django-specific tables |
+| Anti-ORM (dados core) | ✅ Pass | `supabase-py` for all profile/user data; Django ORM is prohibited for `profiles`, `processed_webhook_events`, and all user-related tables |
 | RLS-First | ✅ Pass | All patient (children) queries filter by `parent_id`; UUIDs serialized as `str(uuid)` |
 | Offline-First | ⚠️ N/A | Webhook handler is online-only by nature |
 | Type Hinting | ✅ Pass | All Python code uses strict type hints |
@@ -42,7 +42,7 @@
 ## Implementation Phases
 
 ### Phase 1: Database & Infrastructure
-1. Create Supabase migration for `profiles`, `children`, `processed_webhook_events`, `magic_link_logs` tables
+1. Create Supabase migration for `profiles`, `processed_webhook_events`, `magic_link_logs` tables (Anti-ORM: all user data in Supabase)
 2. Enable RLS and create policies
 3. Configure Stripe webhook endpoint in dashboard
 4. Configure Supabase Auth settings (magic link, 90-day JWT)
@@ -104,25 +104,34 @@
 
 ## File Structure
 
+Per Constitution L136-L147, all application code resides in `src/`. This feature uses the Django app `payments`.
+
 ```
-project/
-├── services/
-│   ├── stripe_webhook.py      # Webhook business logic
-│   ├── magic_link.py          # Magic link business logic
-│   └── __init__.py
-├── views/
-│   ├── webhooks.py            # Stripe webhook endpoint
-│   ├── auth.py                # Magic link callback
-│   └── __init__.py
-├── templates/
-│   └── auth/
-│       └── callback.html      # Auth callback page
-├── urls.py                    # URL routing
-├── tests/
-│   ├── test_webhook.py
-│   ├── test_magic_link.py
-│   └── test_integration.py
-└── migrations/                # Supabase migrations (SQL files)
+src/
+├── apps/
+│   └── payments/
+│       ├── __init__.py
+│       ├── services.py        # Webhook + Magic Link business logic (Constitution III)
+│       ├── views.py           # Stripe webhook endpoint + Auth callback
+│       ├── urls.py            # App URL routing
+│       └── templates/
+│           └── payments/
+│               └── partials/
+│                   └── auth_callback_partial.html  # HTMX partial (Constitution II)
+├── config/
+│   ├── settings.py            # Environment variables
+│   └── urls.py                # Root URL routing (includes payments.urls)
+├── static/                    # Tailwind + Alpine.js assets
+└── tests/
+    ├── test_webhook.py
+    ├── test_magic_link.py
+    └── test_integration.py
+
+migrations/                      # Supabase SQL migrations (root level)
+├── 001_profiles.sql
+├── 002_processed_webhook_events.sql
+├── 003_magic_link_logs.sql
+└── 004_audit_logs.sql
 ```
 
 ## Risk Mitigation

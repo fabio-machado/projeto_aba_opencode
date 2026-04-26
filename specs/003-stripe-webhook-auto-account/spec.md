@@ -84,7 +84,7 @@ Após a criação automática da conta, o usuário recebe um email com um magic 
 - Como o sistema lida com falhas temporárias no banco de dados durante a criação do usuário?
 - O que ocorre se o Stripe enviar um evento com tipo diferente de `payment_intent.succeeded`?
 - Como o sistema trata webhooks recebidos fora de ordem?
-- O que acontece se a criação do usuário falhar após o webhook ter sido validado? O Stripe deve receber um erro para que faça retry.
+- O que acontece se a criação do usuário falhar após o webhook ter sido validado? O Stripe deve receber um erro (HTTP 500) para que faça retry.
 - O que ocorre se o envio do email com magic link falhar após a criação do usuário? O sistema deve registrar o erro mas não deve expor falha ao Stripe (webhook já foi processado).
 - Como o sistema trata um magic link que foi compartilhado ou acessado por outra pessoa?
 - O que acontece quando o token de 90 dias expira? O usuário deve solicitar novo magic link.
@@ -104,6 +104,9 @@ Após a criação automática da conta, o usuário recebe um email com um magic 
 - **FR-009**: Se o evento `payment_intent.succeeded` não contiver email do cliente, o sistema DEVE retornar erro (HTTP 400) e não criar usuário, evitando retries para eventos incompletos.
 - **FR-010**: Após criar um novo usuário com sucesso, o sistema DEVE enviar um email contendo um magic link de acesso único para o email do usuário.
 - **FR-011**: O magic link DEVE autenticar o usuário automaticamente e gerar um token de acesso válido por 90 dias no Supabase (banco + auth do app).
+- **FR-012**: O sistema DEVE mapear o produto/price do Stripe pago para as flags de acesso do funil (`has_generator_access` para Low Ticket, `has_library_access` para Upsell/Order Bump), garantindo que o modelo de receita seja refletido nos dados do usuário.
+- **FR-013**: O sistema DEVE registrar logs de auditoria (Constitution IV) para toda operação de escrita em dados de usuários, incluindo `user_id`, `action` e `timestamp` na tabela `audit_logs`.
+- **FR-014**: O sistema DEVE retornar HTTP 500 para o Stripe em caso de falhas temporárias no banco de dados durante a criação do usuário, permitindo retry automático.
 
 ### Key Entities *(include if feature involves data)*
 
@@ -117,8 +120,8 @@ Após a criação automática da conta, o usuário recebe um email com um magic 
 - **UX Fricção Zero**: Nenhuma ação primária pode exceder 5 segundos ou usar `<select>` para inputs frequentes. Área de toque mínima: 48×48 dp.
 - **Anti-SPA**: Proibido uso de React, Vue, Angular ou Svelte. Interatividade via HTMX + Alpine.js apenas.
 - **Service Layer**: Toda lógica de negócio reside em `services.py`; views apenas validam input e retornam response.
-- **Anti-ORM (dados core)**: Dados de pacientes usam `supabase-py`; ORM do Django é proibido para esses dados.
-- **RLS-First**: Toda query em dados de pacientes filtra por `parent_id`; UUIDs serializados como `str(uuid)` antes do SDK Supabase.
+- **Anti-ORM (dados core)**: Dados de usuários (`profiles`, `processed_webhook_events`, `magic_link_logs`) usam `supabase-py`; ORM do Django é proibido para esses dados.
+- **RLS-First**: Toda query em dados de usuários filtra por `id` (UUID do auth user); UUIDs serializados como `str(uuid)` antes do SDK Supabase.
 - **Offline-First**: Ações de registro DEVEM persistir em LocalStorage e sincronizar quando online; conflitos usam last-write-wins.
 - **Type Hinting**: Todo código Python DEVE usar type hints estritos.
 - **Lock-in por utilidade**: Nenhuma feature pode dificultar entrada ou exportação de dados do usuário.
@@ -139,3 +142,4 @@ Após a criação automática da conta, o usuário recebe um email com um magic 
 - O Stripe está configurado para enviar eventos `payment_intent.succeeded` para o endpoint correto.
 - O secret de validação de webhook do Stripe está disponível como variável de ambiente ou configuração segura.
 - A lógica de criação de usuário reutiliza o serviço de autenticação/registro existente do sistema quando possível.
+- O código da feature reside no Django app `payments` dentro de `src/apps/`, seguindo a Constitution do projeto (Service Layer em `services.py`, views finas, templates parciais HTMX em `templates/payments/partials/`).

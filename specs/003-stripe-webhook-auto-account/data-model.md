@@ -44,36 +44,7 @@ CREATE POLICY "Users can update own profile" ON profiles
 
 ---
 
-### 2. `children`
-
-Represents children/patients associated with a parent user profile.
-
-| Column | Type | Constraints | Description |
-|--------|------|-------------|-------------|
-| `id` | UUID | PK | Unique identifier |
-| `parent_id` | UUID | NOT NULL, FK → `profiles.id` | Reference to parent user |
-| `name` | VARCHAR(255) | NOT NULL | Child's name |
-| `birth_date` | DATE | NULLABLE | Child's date of birth |
-| `metadata` | JSONB | DEFAULT '{}' | Flexible data: allergies, hyperfocuses, support level |
-| `created_at` | TIMESTAMPTZ | DEFAULT NOW() | Record creation timestamp |
-| `updated_at` | TIMESTAMPTZ | DEFAULT NOW() | Last update timestamp |
-
-**Indexes**:
-- `idx_children_parent_id` on `parent_id` (for listing children by parent)
-
-**RLS Policy**:
-```sql
--- Parents can only access their own children's records
-CREATE POLICY "Parents can view own children" ON children
-  FOR SELECT USING (auth.uid() = parent_id);
-
-CREATE POLICY "Parents can manage own children" ON children
-  FOR ALL USING (auth.uid() = parent_id);
-```
-
----
-
-### 3. `processed_webhook_events`
+### 2. `processed_webhook_events`
 
 Idempotency tracker for Stripe webhook events.
 
@@ -97,7 +68,7 @@ CREATE POLICY "Service role only" ON processed_webhook_events
 
 ---
 
-### 4. `magic_link_logs` *(Optional Audit Table)*
+### 3. `magic_link_logs` *(Optional Audit Table)*
 
 Tracks magic link sends for debugging and audit purposes.
 
@@ -117,14 +88,40 @@ CREATE POLICY "Users can view own logs" ON magic_link_logs
   FOR SELECT USING (auth.uid() = user_id);
 ```
 
+### 4. `audit_logs`
+
+Audit trail for all write operations on user data, per Constitution IV (Auditabilidade).
+
+| Column | Type | Constraints | Description |
+|--------|------|-------------|-------------|
+| `id` | UUID | PK | Unique identifier |
+| `user_id` | UUID | NOT NULL, FK → `profiles.id` | User affected by the action |
+| `action` | VARCHAR(100) | NOT NULL | Action performed: `user_created`, `magic_link_sent`, `webhook_processed`, etc. |
+| `metadata` | JSONB | DEFAULT '{}' | Additional context: event_id, email, stripe_customer_id |
+| `timestamp` | TIMESTAMPTZ | DEFAULT NOW() | When the action occurred |
+
+**Indexes**:
+- `idx_audit_logs_user_id` on `user_id` (for querying user history)
+- `idx_audit_logs_action` on `action` (for filtering by action type)
+
+**RLS Policy**:
+```sql
+-- Only service role can write audit logs; users can view their own
+CREATE POLICY "Service role can insert" ON audit_logs
+  FOR INSERT USING (false); -- Use service key
+
+CREATE POLICY "Users can view own audits" ON audit_logs
+  FOR SELECT USING (auth.uid() = user_id);
+```
+
 ---
 
 ## Relationships
 
 ```
-auth.users (1) ────< (1) profiles (1) ────< (N) children
+auth.users (1) ────< (1) profiles (1) ────< (N) magic_link_logs
                                               
-profiles (1) ────< (N) magic_link_logs
+profiles (1) ────< (N) audit_logs
 ```
 
 ## State Transitions
@@ -159,8 +156,9 @@ profiles (1) ────< (N) magic_link_logs
 ## Migration Notes
 
 - Create `profiles` table with FK to `auth.users.id` (ON DELETE CASCADE)
-- Create `children` table with FK to `profiles.id` (ON DELETE CASCADE)
 - Create `processed_webhook_events` table (no FK needed, standalone)
+- Create `magic_link_logs` table with FK to `profiles.id` (ON DELETE CASCADE)
+- Create `audit_logs` table with FK to `profiles.id` (ON DELETE CASCADE)
 - Enable RLS on all tables and create policies
 - Create triggers for `updated_at` auto-update
 

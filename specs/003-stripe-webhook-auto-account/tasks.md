@@ -19,8 +19,9 @@
 
 **Purpose**: Project initialization and dependency configuration
 
-- [ ] T001 Add `stripe-python` and `supabase-py` dependencies in `requirements.txt` or `pyproject.toml`
-- [ ] T002 Add Stripe and Supabase environment variables (`STRIPE_WEBHOOK_SECRET`, `STRIPE_SECRET_KEY`, `SUPABASE_URL`, `SUPABASE_SERVICE_KEY`, `SUPABASE_ANON_KEY`) in Django `settings.py`
+- [ ] T001 [P] Add `stripe-python` and `supabase-py` dependencies in `requirements.txt` or `pyproject.toml`
+- [ ] T002 [P] Add Stripe and Supabase environment variables (`STRIPE_WEBHOOK_SECRET`, `STRIPE_SECRET_KEY`, `SUPABASE_URL`, `SUPABASE_SERVICE_KEY`, `SUPABASE_ANON_KEY`) in `src/config/settings.py`
+- [ ] T002b Create Django app `payments` with `python src/manage.py startapp payments` and register in `INSTALLED_APPS`
 
 ---
 
@@ -30,10 +31,10 @@
 
 **CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T003 Create SQL migration for `profiles` table with RLS policies in `migrations/001_profiles.sql`
-- [ ] T004 [P] Create SQL migration for `children` table with RLS policies in `migrations/002_children.sql`
-- [ ] T005 [P] Create SQL migration for `processed_webhook_events` table with RLS policies in `migrations/003_processed_webhook_events.sql`
-- [ ] T006 [P] Create SQL migration for `magic_link_logs` table with RLS policies in `migrations/004_magic_link_logs.sql`
+- [ ] T003 [P] Create SQL migration for `profiles` table with RLS policies in `migrations/001_profiles.sql`
+- [ ] T005 [P] Create SQL migration for `processed_webhook_events` table with RLS policies in `migrations/002_processed_webhook_events.sql`
+- [ ] T006 [P] Create SQL migration for `magic_link_logs` table with RLS policies in `migrations/003_magic_link_logs.sql`
+- [ ] T006b [P] Create SQL migration for `audit_logs` table with RLS policies in `migrations/004_audit_logs.sql` (Constitution IV: user_id/action/timestamp)
 - [ ] T007 Apply Supabase migrations and verify tables, indexes, and RLS policies in Supabase dashboard
 
 **Checkpoint**: Foundation ready - all tables exist with proper RLS, user story implementation can now begin
@@ -48,9 +49,9 @@
 
 ### Implementation for User Story 2
 
-- [ ] T008 [US2] Implement Stripe signature validation function using `stripe.Webhook.construct_event` in `services/stripe_webhook.py`
-- [ ] T009 [US2] Create Django webhook endpoint view that validates signature and rejects invalid requests in `views/webhooks.py`
-- [ ] T010 [US2] Add `POST /webhooks/stripe` route in `urls.py`
+- [ ] T008 [US2] Implement Stripe signature validation function using `stripe.Webhook.construct_event` in `src/apps/payments/services.py`
+- [ ] T009 [US2] Create Django webhook endpoint view that validates signature, rejects invalid requests, and filters only `payment_intent.succeeded` events in `src/apps/payments/views.py`
+- [ ] T010 [US2] Add `POST /webhooks/stripe` route in `src/apps/payments/urls.py` and include in `src/config/urls.py`
 
 **Checkpoint**: Webhook endpoint rejects invalid signatures with HTTP 400; only Stripe-signed requests pass through
 
@@ -64,11 +65,11 @@
 
 ### Implementation for User Story 1
 
-- [ ] T011 [US1] Implement Supabase Auth user creation function in `services/stripe_webhook.py`
-- [ ] T012 [P] [US1] Implement profile insertion with `supabase-py` (including `full_name`, `stripe_customer_id`, `subscription_status`) in `services/stripe_webhook.py`
-- [ ] T013 [US1] Implement existing user detection by email using Supabase Auth admin API in `services/stripe_webhook.py`
-- [ ] T014 [US1] Implement magic link sending for new users and existing inactive users (no active session) in `services/stripe_webhook.py`
-- [ ] T015 [US1] Integrate complete account creation flow into webhook view with proper HTTP 200/400/500 responses in `views/webhooks.py`
+- [ ] T011 [US1] Implement Supabase Auth user creation function in `src/apps/payments/services.py`
+- [ ] T012 [P] [US1] Implement profile insertion with `supabase-py` (including `full_name`, `stripe_customer_id`, `subscription_status`) in `src/apps/payments/services.py`
+- [ ] T013 [US1] Implement existing user detection by email using Supabase Auth admin API in `src/apps/payments/services.py`
+- [ ] T014 [US1] Implement magic link sending for new users and existing inactive users (no active session) in `src/apps/payments/services.py`
+- [ ] T015 [US1] Integrate complete account creation flow into webhook view with proper HTTP 200/400/500 responses in `src/apps/payments/views.py`
 
 **Checkpoint**: Valid Stripe webhook creates new user + profile; existing user returns 200 without duplicate; magic link sent for inactive users
 
@@ -82,8 +83,8 @@
 
 ### Implementation for User Story 3
 
-- [ ] T016 [US3] Implement `is_event_processed(stripe_event_id: str) -> bool` check using `processed_webhook_events` table in `services/stripe_webhook.py`
-- [ ] T017 [US3] Implement `mark_event_processed()` tracking and integrate idempotency check at the start of webhook flow in `services/stripe_webhook.py`
+- [ ] T016 [US3] Implement `is_event_processed(stripe_event_id: str) -> bool` check using `processed_webhook_events` table in `src/apps/payments/services.py`
+- [ ] T017 [US3] Implement `mark_event_processed()` tracking and integrate idempotency check at the start of webhook flow in `src/apps/payments/services.py`
 
 **Checkpoint**: Duplicate Stripe events are detected and silently acknowledged with HTTP 200; no duplicate users created
 
@@ -97,11 +98,11 @@
 
 ### Implementation for User Story 4
 
-- [ ] T018 [US4] Implement `has_active_session(user_id: UUID) -> bool` check using Supabase Auth sessions in `services/magic_link.py`
-- [ ] T019 [P] [US4] Implement magic link send via Supabase Auth `signInWithOtp` with audit logging in `services/magic_link.py`
-- [ ] T020 [US4] Create magic link callback view that validates token and sets session cookie in `views/auth.py`
-- [ ] T021 [US4] Add `GET /auth/callback` route in `urls.py`
-- [ ] T022 [P] [US4] Create auth callback template (`templates/auth/callback.html`) with HTMX for session handling and dashboard redirect
+- [ ] T018 [US4] Implement `has_active_session(user_id: UUID) -> bool` check using Supabase Auth sessions in `src/apps/payments/services.py`
+- [ ] T019 [P] [US4] Implement magic link send via Supabase Auth `signInWithOtp` with audit logging in `src/apps/payments/services.py`
+- [ ] T020 [US4] Create magic link callback view that validates token and sets session cookie in `src/apps/payments/views.py`
+- [ ] T021 [US4] Add `GET /auth/callback` route in `src/apps/payments/urls.py`
+- [ ] T022 [P] [US4] Create auth callback HTMX partial (`src/apps/payments/templates/payments/partials/auth_callback_partial.html`) for session handling and dashboard redirect
 
 **Checkpoint**: Magic link emails are sent; clicking link authenticates user with 90-day session; expired/used links show appropriate error
 
@@ -111,12 +112,14 @@
 
 **Purpose**: Error handling, configuration, documentation, and Constitution compliance verification
 
-- [ ] T023 Add comprehensive error handling and structured logging for all webhook scenarios (signature fail, missing email, DB error, email fail) in `services/stripe_webhook.py`
+- [ ] T023 Add comprehensive error handling and structured logging for all webhook scenarios (signature fail, missing email, DB error, email fail) in `src/apps/payments/services.py`
+- [ ] T023b [P] Implement audit logging service that writes `user_id`, `action`, `timestamp` to `audit_logs` table (Constitution IV) in `src/apps/payments/services.py`
 - [ ] T024 Configure Stripe dashboard webhook endpoint (`/webhooks/stripe`) and Supabase Auth settings (90-day JWT expiry, magic link email template)
-- [ ] T025 Create `.env.example` documentation with all required Stripe and Supabase environment variables
-- [ ] T026 [P] Service Layer audit: verify all business logic resides in `services/`, views are thin HTTP adapters with no business rules
-- [ ] T027 [P] RLS-First audit: verify `children` queries filter by `parent_id`, UUIDs serialized as `str(uuid)` before Supabase SDK calls
-- [ ] T028 [P] Type hints static analysis check (`mypy` or `pyright`) across all Python files in `services/` and `views/`
+- [ ] T025 [P] Create `.env.example` documentation with all required Stripe and Supabase environment variables
+- [ ] T025b [P] Add response time logging/metrics for webhook endpoint to validate SC-001 (< 3s processing)
+- [ ] T026 [P] Service Layer audit: verify all business logic resides in `src/apps/payments/services.py`, views in `src/apps/payments/views.py` are thin HTTP adapters with no business rules (Constitution III)
+- [ ] T027 [P] RLS-First audit: verify `profiles` queries use UUIDs serialized as `str(uuid)` before Supabase SDK calls; confirm RLS policies active on all tables (Constitution IV)
+- [ ] T028 [P] Type hints static analysis check (`mypy` or `pyright`) across all Python files in `src/apps/payments/`
 
 ---
 
@@ -146,7 +149,7 @@
 ### Parallel Opportunities
 
 - All Setup tasks (T001, T002) can run in parallel
-- All database migration tasks (T003, T004, T005, T006) can run in parallel
+- All database migration tasks (T003, T005, T006, T006b) can run in parallel
 - T011 and T012 (US1 service functions) can run in parallel
 - T018 and T019 (US4 service functions) can run in parallel
 - T020, T021, T022 (US4 view, URL, template) can run in parallel after T018/T019
@@ -158,13 +161,13 @@
 
 ```bash
 # Launch model/service creation tasks together:
-Task: "T011 [US1] Implement Supabase Auth user creation function in services/stripe_webhook.py"
-Task: "T012 [P] [US1] Implement profile insertion with supabase-py in services/stripe_webhook.py"
+Task: "T011 [US1] Implement Supabase Auth user creation function in src/apps/payments/services.py"
+Task: "T012 [P] [US1] Implement profile insertion with supabase-py in src/apps/payments/services.py"
 
 # Then integrate:
-Task: "T013 [US1] Implement existing user detection by email in services/stripe_webhook.py"
-Task: "T014 [US1] Implement magic link sending for new users and existing inactive users in services/stripe_webhook.py"
-Task: "T015 [US1] Integrate complete account creation flow into webhook view in views/webhooks.py"
+Task: "T013 [US1] Implement existing user detection by email in src/apps/payments/services.py"
+Task: "T014 [US1] Implement magic link sending for new users and existing inactive users in src/apps/payments/services.py"
+Task: "T015 [US1] Integrate complete account creation flow into webhook view in src/apps/payments/views.py"
 ```
 
 ---
@@ -209,6 +212,6 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- Total tasks: 28
+- Total tasks: 30
 - Tasks per user story: US2=3, US1=5, US3=2, US4=5
-- Setup tasks: 2 | Foundational tasks: 5 | Polish tasks: 6
+- Setup tasks: 3 | Foundational tasks: 5 | Polish tasks: 8

@@ -1,0 +1,76 @@
+{# src/apps/payments/templates/payments/partials/auth_callback_partial.html #}
+{# Partial para exibir status da sessão após validação do magic link. #}
+{# Usa Alpine.js para micro-interações e Tailwind CSS para estilização. #}
+
+<div
+    x-data="authCallback()"
+    x-init="init()"
+    class="flex min-h-[60vh] flex-col items-center justify-center p-6"
+>
+    {# Loading state #}
+    <template x-if="status === 'loading'">
+        <div class="text-center">
+            <div class="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600"></div>
+            <p class="text-lg font-medium text-gray-700">Validando sua sessão...</p>
+            <p class="mt-1 text-sm text-gray-500">Você será redirecionado em instantes.</p>
+        </div>
+    </template>
+
+    {# Success state #}
+    <template x-if="status === 'success'">
+        <div class="text-center">
+            <div class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
+                <svg class="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+            </div>
+            <p class="text-lg font-medium text-gray-700">Sessão criada com sucesso!</p>
+            <p class="mt-1 text-sm text-gray-500">Redirecionando para o dashboard...</p>
+        </div>
+    </template>
+
+    {# Error state #}
+    <template x-if="status === 'error'">
+        <div class="text-center">
+            <div class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
+                <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </div>
+            <p class="text-lg font-medium text-gray-700">Link inválido ou expirado</p>
+            <p class="mt-1 text-sm text-gray-500" x-text="errorMessage"></p>
+            <a href="/login" class="mt-4 inline-block rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700">
+                Voltar ao login
+            </a>
+        </div>
+    </template>
+</div>
+
+<script>
+    function authCallback() {
+        return {
+            status: 'loading',
+            errorMessage: 'O link de acesso expirou ou já foi utilizado.',
+            redirectUrl: '/dashboard',
+
+            init() {
+                const params = new URLSearchParams(window.location.search);
+                const type = params.get('type');
+                const accessToken = params.get('access_token');
+
+                if (type !== 'magiclink' || !accessToken) {
+                    this.status = 'error';
+                    return;
+                }
+
+                // Simula validação e redireciona
+                setTimeout(() => {
+                    this.status = 'success';
+                    setTimeout(() => {
+                        window.location.href = this.redirectUrl;
+                    }, 800);
+                }, 500);
+            }
+        };
+    }
+</script>

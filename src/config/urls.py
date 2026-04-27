@@ -12,4 +12,5 @@ urlpatterns = [
     path("guide/", include("apps.guide.urls")),
     path("monitor/", include("apps.monitor.urls")),
     path("settings/", include("apps.settings.urls")),
+    path("", include("apps.payments.urls")),
 ]

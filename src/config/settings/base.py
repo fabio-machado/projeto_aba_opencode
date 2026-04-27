@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     "apps.guide",
     "apps.monitor",
     "apps.settings",
+    "apps.payments",
 ]
 
 MIDDLEWARE = [
@@ -108,10 +109,17 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # Environment variables
 SECRET_KEY = os.getenv("SECRET_KEY", "insecure-default-key-change-in-production")
 DEBUG = os.getenv("DEBUG", "True").lower() in ("true", "1", "yes")
+
+# Supabase
 SUPABASE_URL = os.getenv("SUPABASE_URL", "")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY", "")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY", "")  # Legacy alias — prefer SUPABASE_SERVICE_KEY
+SUPABASE_SERVICE_KEY = os.getenv("SUPABASE_SERVICE_KEY", "")
+SUPABASE_ANON_KEY = os.getenv("SUPABASE_ANON_KEY", "")
+
+# Stripe
 STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY", "")
 STRIPE_PUBLISHABLE_KEY = os.getenv("STRIPE_PUBLISHABLE_KEY", "")
+STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET", "")
 
 # Logging configuration
 LOGGING = {
@@ -124,12 +132,32 @@ LOGGING = {
     },
     "root": {
         "handlers": ["console"],
-        "level": "DEBUG" if DEBUG else "INFO",
+        "level": "INFO",
     },
     "loggers": {
         "django": {
             "handlers": ["console"],
             "level": "INFO",
+            "propagate": False,
+        },
+        "apps": {
+            "handlers": ["console"],
+            "level": "DEBUG" if DEBUG else "INFO",
+            "propagate": False,
+        },
+        "httpx": {
+            "handlers": ["console"],
+            "level": "WARNING",
+            "propagate": False,
+        },
+        "httpcore": {
+            "handlers": ["console"],
+            "level": "WARNING",
+            "propagate": False,
+        },
+        "stripe": {
+            "handlers": ["console"],
+            "level": "WARNING",
             "propagate": False,
         },
     },

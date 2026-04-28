@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+
+{% block title %}Acessar — Autismo em Foco{% endblock %}
+
+{# ────────────────────────────────────────────────────────────── #}
+{# Login — public route: no header, no nav, no bottom sheet      #}
+{# DESIGN: card centered, single email field, magic link flow    #}
+{# ────────────────────────────────────────────────────────────── #}
+
+{# Remove app shell chrome (header, bottom nav, bottom sheet) #}
+{% block header %}{% endblock %}
+{% block bottom_nav %}{% endblock %}
+{% block bottom_sheet %}{% endblock %}
+
+{% block main %}
+<div class="min-h-screen flex items-center justify-center p-4 bg-surface">
+  <div class="max-w-sm w-full">
+
+    {# ── HTMX form container + Alpine.js scope ──────────────── #}
+    <div id="login-form" x-data="loginForm()">
+
+      {# ── Pre-populated error (from view context) ──────────── #}
+      {% if login_error %}
+      <div
+        id="login-error"
+        class="mb-4 rounded-lg bg-red-50 dark:bg-red-900/20 p-3 text-sm text-red-600 dark:text-red-300 border border-red-200 dark:border-red-800"
+        role="alert"
+      >
+        <p>{{ login_error }}</p>
+      </div>
+      {% endif %}
+
+      {# ── Card container ───────────────────────────────────── #}
+      <div class="rounded-2xl shadow-lg bg-white dark:bg-slate-800 p-8">
+
+        {# ── Logo / Brand ───────────────────────────────────── #}
+        <div class="text-center mb-8">
+          {# SVG ícone placeholder — será substituído pelo logo oficial #}
+          <svg class="w-16 h-16 mx-auto mb-3" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="64" height="64" rx="16" fill="#14b8a6"/>
+            <path d="M20 44V28L32 20L44 28V44H36V34H28V44H20Z" fill="white"/>
+          </svg>
+          <h1 class="text-2xl font-bold text-teal-500">
+            Autismo em Foco
+          </h1>
+        </div>
+
+        {# ── Magic link form ────────────────────────────────── #}
+        <form
+          hx-post="/login/submit/"
+          hx-target="#login-form"
+          hx-swap="outerHTML"
+          hx-indicator="#login-form"
+          @submit="submitting = true"
+          class="space-y-4"
+        >
+          {% csrf_token %}
+
+          {# ── Hidden `next` param for post-login redirect ───── #}
+          {% if next_url %}
+          <input type="hidden" name="next" value="{{ next_url }}">
+          {% endif %}
+
+          {# ── Email field ──────────────────────────────────── #}
+          <div>
+            <label
+              for="email"
+              class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5"
+            >
+              E-mail
+            </label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              x-model="email"
+              @input="clearError()"
+              placeholder="seu@email.com"
+              required
+              autocomplete="email"
+              autofocus
+              class="w-full rounded-lg border border-slate-300 dark:border-slate-600
+                     bg-white dark:bg-slate-700 px-4 py-3
+                     text-slate-900 dark:text-slate-100
+                     placeholder:text-slate-400 dark:placeholder:text-slate-500
+                     focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent
+                     transition-theme min-h-[48px]"
+            >
+          </div>
+
+          {# ── Instructional text ───────────────────────────── #}
+          <p class="text-sm text-slate-500 dark:text-slate-400">
+            Enviaremos um link de acesso para o seu e-mail. Não é necessário senha.
+          </p>
+
+          {# ── Submit button — min 48×48dp touch area ────────── #}
+          <button
+            type="submit"
+            :disabled="submitting"
+            class="w-full min-h-[48px] py-3 px-6 rounded-xl
+                   bg-teal-500 hover:bg-teal-600 dark:bg-teal-500 dark:hover:bg-teal-400
+                   text-white font-medium
+                   focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2
+                   dark:focus:ring-offset-slate-800
+                   disabled:opacity-60 disabled:cursor-not-allowed
+                   active:scale-[0.98]
+                   transition-theme"
+          >
+            <span x-show="!submitting">Receber Acesso</span>
+            <span x-show="submitting" x-cloak class="inline-flex items-center justify-center gap-2">
+              <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+              </svg>
+              Enviando...
+            </span>
+          </button>
+        </form>
+      </div>
+
+      {# ── Support link ─────────────────────────────────────── #}
+      <p class="mt-6 text-center text-sm text-slate-500 dark:text-slate-400">
+        Problemas com seu acesso?
+        <a
+          href="mailto:{{ support_email|default:'suporte@autismoemfoco.com.br' }}"
+          class="text-teal-500 hover:text-teal-600 dark:text-teal-400 dark:hover:text-teal-300
+                 hover:underline font-medium transition-colors"
+        >
+          Fale conosco
+        </a>
+      </p>
+
+      {# ── LGPD privacy notice ──────────────────────────────── #}
+      <p class="mt-3 text-center text-xs text-slate-400 dark:text-slate-500">
+        Seus dados são protegidos conforme nossa
+        <a
+          href="/privacidade"
+          class="text-teal-500 hover:text-teal-600 dark:text-teal-400 dark:hover:text-teal-300
+                 hover:underline transition-colors"
+        >
+          Política de Privacidade
+        </a>
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock main %}
+
+{% block extra_scripts %}
+<script src="/static/js/auth.js"></script>
+{% endblock %}

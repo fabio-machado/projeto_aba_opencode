@@ -1,4 +1,4 @@
-# Contract: POST /login
+# Contract: POST /login/submit
 
 **Feature**: Auth Login Screen (Magic Link Flow)
 **Method**: POST
@@ -85,7 +85,7 @@
 
 ## Behavior Notes
 
-- O formulário NÃO é recarregado via full page reload. A submissão usa `hx-post="/login" hx-target="#login-form" hx-swap="outerHTML"`.
+- O formulário NÃO é recarregado via full page reload. A submissão usa `hx-post="/login/submit/" hx-target="#login-form" hx-swap="outerHTML"`.
 - Em caso de erro, o formulário permanece visível para nova tentativa (apenas a mensagem de erro é inserida).
 - Em caso de sucesso, o formulário inteiro é substituído pela mensagem de confirmação.
 - O rate limiting é aplicado ANTES da consulta ao Supabase para evitar consumo desnecessário de recursos.

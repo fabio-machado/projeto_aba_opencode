@@ -87,18 +87,26 @@
 >
 
   {# ── T008/T009/T010: Header fixo ─────────────────────────── #}
+  {% block header %}
   {% include "partials/nav/_header.html" %}
+  {% endblock %}
 
   {# ── T008/T013: Conteúdo scrollável independente ─────────── #}
+  {% block main %}
   <main id="app-canvas" class="pt-16 pb-20 overflow-y-auto w-full max-w-6xl">
     {% block content %}{% endblock %}
   </main>
+  {% endblock main %}
 
   {# ── T008/T011/T012: Bottom navigation fixa ──────────────── #}
+  {% block bottom_nav %}
   {% include "partials/nav/_bottom_nav.html" %}
+  {% endblock %}
 
   {# ── T021 (stub): Bottom sheet ───────────────────────────── #}
+  {% block bottom_sheet %}
   {% include "partials/nav/_bottom_sheet.html" %}
+  {% endblock %}
 
   {# ── Scripts ──────────────────────────────────────────────── #}
   <script src="/static/js/app-shell.js"></script>

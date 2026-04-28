@@ -2,85 +2,13 @@ import logging
 import time
 
 from django.conf import settings
-from django.http import HttpRequest, HttpResponseRedirect, JsonResponse
-from django.shortcuts import redirect
+from django.http import HttpRequest, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.http import require_POST, require_GET
+from django.views.decorators.http import require_POST
 
 from apps.payments import services as payment_service
 
 logger = logging.getLogger(__name__)
-
-
-# ---------------------------------------------------------------------------
-# T020 — Magic link callback view
-# ---------------------------------------------------------------------------
-
-@require_GET
-def auth_callback(request: HttpRequest) -> HttpResponseRedirect:
-    """Processa o callback do magic link após o usuário clicar no e-mail.
-
-    Fluxo:
-        1. Extrair query parameters (access_token, refresh_token, type).
-        2. Delegar validação ao service layer.
-        3. Se válido: setar cookie HTTP-only com access token e redirecionar
-           para /dashboard.
-        4. Se inválido: redirecionar para /login com erro.
-    """
-    # 1. Extrair input do request
-    access_token: str = request.GET.get("access_token", "").strip()
-    refresh_token: str = request.GET.get("refresh_token", "").strip()
-    token_type: str = request.GET.get("type", "").strip()
-
-    logger.info(
-        "Auth callback received",
-        extra={
-            "has_access_token": bool(access_token),
-            "has_refresh_token": bool(refresh_token),
-            "token_type": token_type,
-        },
-    )
-
-    # 2. Delegar validação ao service
-    result: dict | None = payment_service.validate_magic_link_callback(
-        access_token=access_token,
-        refresh_token=refresh_token,
-        token_type=token_type,
-    )
-
-    if result is None:
-        logger.warning("Magic link callback validation failed")
-        return redirect("/login?error=invalid_magic_link")
-
-    # 3. Setar cookie HTTP-only com access token
-    user_id: str = result["user_id"]
-    response: HttpResponseRedirect = redirect("/dashboard")
-
-    session_cookie_name: str = getattr(
-        settings, "SUPABASE_SESSION_COOKIE", "supabase_session"
-    )
-
-    response.set_cookie(
-        key=session_cookie_name,
-        value=access_token,
-        max_age=90 * 24 * 60 * 60,  # 90 dias em segundos
-        httponly=True,
-        secure=not settings.DEBUG,
-        samesite="Lax",
-        path="/",
-    )
-
-    # Também armazenar no Django session para acesso via request.session
-    request.session["supabase_access_token"] = access_token
-    request.session["supabase_user_id"] = user_id
-    request.session.save()
-
-    logger.info(
-        "Magic link authentication successful — session created",
-        extra={"user_id": user_id},
-    )
-
-    return response
 
 
 @csrf_exempt

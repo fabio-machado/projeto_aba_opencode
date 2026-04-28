@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}Autenticando... — Autismo em Foco{% endblock %}
+
+{% block header %}{% endblock %}
+{% block bottom_nav %}{% endblock %}
+{% block bottom_sheet %}{% endblock %}
+
+{% block main %}
+<div class="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-900">
+  <div class="text-center">
+    <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-teal-100 dark:bg-teal-900 mb-4">
+      <svg class="animate-spin h-8 w-8 text-teal-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+      </svg>
+    </div>
+    <p class="text-base font-medium text-slate-700 dark:text-slate-300">
+      Autenticando seu acesso...
+    </p>
+    <p class="mt-1 text-sm text-slate-500 dark:text-slate-400" id="status">
+      Processando link de acesso
+    </p>
+  </div>
+</div>
+
+<script>
+(function() {
+  var hash = window.location.hash;
+  if (!hash || hash.length < 2) {
+    window.location.href = '/login/?error=invalid_magic_link';
+    return;
+  }
+
+  // Remove leading '#' and parse fragment params
+  var paramsStr = hash.substring(1);
+  var queryString = '';
+  var parts = paramsStr.split('&');
+
+  for (var i = 0; i < parts.length; i++) {
+    var pair = parts[i].split('=');
+    if (pair.length === 2) {
+      queryString += (queryString ? '&' : '') +
+        encodeURIComponent(pair[0]) + '=' +
+        encodeURIComponent(decodeURIComponent(pair[1].replace(/\+/g, ' ')));
+    }
+  }
+
+  // Redirect to server endpoint with query string
+  window.location.href = '/auth/callback/process/?' + queryString;
+})();
+</script>
+{% endblock %}

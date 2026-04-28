@@ -29,10 +29,12 @@ INSTALLED_APPS = [
     "apps.monitor",
     "apps.settings",
     "apps.payments",
+    "apps.auth_app",
 ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "apps.auth_app.middleware.LoginRequiredMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -162,3 +164,20 @@ LOGGING = {
         },
     },
 }
+
+# ---------------------------------------------------------------------------
+# Authentication
+# ---------------------------------------------------------------------------
+LOGIN_URL = "/login/"
+
+LOGIN_EXEMPT_URLS = [
+    r"^/login/$",
+    r"^/login/submit/$",
+    r"^/auth/callback/$",
+    r"^/auth/callback/process/$",
+    r"^/logout/$",
+    r"^/health/",
+    r"^/webhooks/stripe",
+    r"^/admin/",
+    r"^/static/",
+]

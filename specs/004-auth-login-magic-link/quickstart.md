@@ -135,9 +135,9 @@ python src/manage.py runserver
 ## Fluxo de Teste Manual
 
 ```text
-1. GET  /login                        → 200 (tela de login)
-2. POST /login  email=teste@email.com  → 200 (erro: e-mail não encontrado)
-3. POST /login  email=usuario@pago.com → 200 (sucesso: "Link enviado!")
+1. GET  /login               → 200 (tela de login)
+2. POST /login/submit  email=teste@email.com  → 200 (erro: e-mail não encontrado)
+3. POST /login/submit  email=usuario@pago.com → 200 (sucesso: "Link enviado!")
 4. ✉️  Clicar Magic Link no e-mail     →
 5. GET  /auth/callback?access_token=... → 302 → /app
 6. GET  /app                           → 200 (área restrita, autenticado)

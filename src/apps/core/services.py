@@ -386,15 +386,17 @@ class AuditLogService(BaseService):
         log_entry = {
             "user_id": serialize_uuid(user_id),
             "action": action,
-            "table_name": table_name,
-            "record_id": serialize_uuid(record_id) if record_id else None,
-            "payload": payload,
+            "metadata": {
+                "table_name": table_name,
+                "record_id": serialize_uuid(record_id) if record_id else None,
+                **(payload or {}),
+            },
         }
 
         logger.info("Audit log entry: user_id=%s, action=%s, table=%s", serialize_uuid(user_id), action, table_name)
 
         try:
             supabase = SupabaseService()
-            supabase.client.table("audit_log").insert(log_entry).execute()
+            supabase.client.table("audit_logs").insert(log_entry).execute()
         except Exception as e:
             logger.error("Audit log write failed: error=%s", str(e))

@@ -278,7 +278,7 @@ class EdgeCaseTests(TestCase):
         fake_token: str = f"header.{payload_b64}.signature"
 
         resp = self.client.get(
-            reverse("payments:auth_callback"),
+            reverse("auth_app:auth_callback"),
             {
                 "access_token": fake_token,
                 "refresh_token": "refresh_xxx",
@@ -298,7 +298,7 @@ class EdgeCaseTests(TestCase):
     def test_auth_callback_invalido_redirect_login(self) -> None:
         """Given callback inválido (token_type errado), When GET, Then redirect /login."""
         resp = self.client.get(
-            reverse("payments:auth_callback"),
+            reverse("auth_app:auth_callback"),
             {
                 "access_token": "any",
                 "refresh_token": "any",

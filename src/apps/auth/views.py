@@ -64,7 +64,7 @@ def login_view(request: HttpRequest) -> HttpResponse:
         "next_url": next_url,
     }
 
-    return TemplateResponse(request, "auth_app/login.html", context)
+    return TemplateResponse(request, "auth/login.html", context)
 
 
 # ---------------------------------------------------------------------------
@@ -103,7 +103,7 @@ def login_submit(request: HttpRequest) -> HttpResponse:
     if not email or "@" not in email:
         context["login_error"] = "invalid_format"
         return TemplateResponse(
-            request, "auth_app/partials/_login_feedback.html", context
+            request, "auth/partials/_login_feedback.html", context
         )
 
     # 3. Rate limiting
@@ -116,7 +116,7 @@ def login_submit(request: HttpRequest) -> HttpResponse:
         auth_service.log_attempt(email, ip_address, "rejected", rate_limit_reason)
         context["login_error"] = "rate_limit"
         return TemplateResponse(
-            request, "auth_app/partials/_login_feedback.html", context
+            request, "auth/partials/_login_feedback.html", context
         )
 
     # 4. Validar usuário
@@ -126,13 +126,13 @@ def login_submit(request: HttpRequest) -> HttpResponse:
         auth_service.log_attempt(email, ip_address, "rejected", "email_not_found")
         context["login_error"] = "invalid_format"
         return TemplateResponse(
-            request, "auth_app/partials/_login_feedback.html", context
+            request, "auth/partials/_login_feedback.html", context
         )
     except auth_service.AccountInactiveError:
         auth_service.log_attempt(email, ip_address, "rejected", "account_inactive")
         context["login_error"] = "account_inactive"
         return TemplateResponse(
-            request, "auth_app/partials/_login_feedback.html", context
+            request, "auth/partials/_login_feedback.html", context
         )
 
     if user_data is None:
@@ -142,7 +142,7 @@ def login_submit(request: HttpRequest) -> HttpResponse:
             "utilizado na compra."
         )
         return TemplateResponse(
-            request, "auth_app/partials/_login_feedback.html", context
+            request, "auth/partials/_login_feedback.html", context
         )
 
     # 5. Enviar Magic Link
@@ -153,13 +153,13 @@ def login_submit(request: HttpRequest) -> HttpResponse:
         auth_service.log_attempt(email, ip_address, "success", None)
         context["login_result"] = "success"
         return TemplateResponse(
-            request, "auth_app/partials/_login_feedback.html", context
+            request, "auth/partials/_login_feedback.html", context
         )
     else:
         auth_service.log_attempt(email, ip_address, "rejected", "send_error")
         context["login_error"] = "send_error"
         return TemplateResponse(
-            request, "auth_app/partials/_login_feedback.html", context
+            request, "auth/partials/_login_feedback.html", context
         )
 
 
@@ -177,7 +177,7 @@ def auth_callback(request: HttpRequest) -> TemplateResponse:
     para extrair os parâmetros e redirecionar para /auth/callback/process/ com
     query string (?), onde o servidor consegue ler os tokens.
     """
-    return TemplateResponse(request, "auth_app/auth_callback.html", {})
+    return TemplateResponse(request, "auth/auth_callback.html", {})
 
 
 # ---------------------------------------------------------------------------

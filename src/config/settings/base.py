@@ -29,12 +29,12 @@ INSTALLED_APPS = [
     "apps.monitor",
     "apps.settings",
     "apps.payments",
-    "apps.auth_app",
+    "apps.auth",
 ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "apps.auth_app.middleware.LoginRequiredMiddleware",
+    "apps.auth.middleware.LoginRequiredMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",

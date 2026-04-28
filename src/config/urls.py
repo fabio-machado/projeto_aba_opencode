@@ -13,5 +13,5 @@ urlpatterns = [
     path("monitor/", include("apps.monitor.urls")),
     path("settings/", include("apps.settings.urls")),
     path("", include("apps.payments.urls")),
-    path("", include("apps.auth_app.urls")),
+    path("", include("apps.auth.urls")),
 ]

@@ -9,6 +9,8 @@ from __future__ import annotations
 
 import logging
 import os
+import threading
+import time
 from typing import Any
 
 from django.conf import settings
@@ -17,6 +19,17 @@ from supabase import Client, create_client
 from apps.core.services import AuditLogService
 
 logger = logging.getLogger(__name__)
+
+# -----------------------------------------------------------
+# Refresh token debounce — previne race condition em
+# múltiplas requisições concorrentes com o mesmo token expirado.
+# O Supabase usa refresh token rotation: cada token só pode ser
+# usado uma vez. Sem debounce, a primeira requisição consome o
+# token e as demais falham com "Already Used".
+# -----------------------------------------------------------
+
+_refresh_lock = threading.Lock()
+_refreshing_tokens: set[str] = set()
 
 # -----------------------------------------------------------
 # Configuration
@@ -391,7 +404,9 @@ def log_attempt(
 def refresh_session(refresh_token: str) -> dict[str, Any] | None:
     """Renova uma sessão Supabase usando refresh token.
 
-    O Supabase Auth faz rotação automática de refresh tokens.
+    O Supabase Auth faz rotação automática de refresh tokens — cada token
+    só pode ser usado uma vez. Para evitar race conditions entre múltiplas
+    requisições concorrentes, esta função usa um debounce por token.
 
     Args:
         refresh_token: Refresh token atual.
@@ -400,9 +415,15 @@ def refresh_session(refresh_token: str) -> dict[str, Any] | None:
         Dicionário com ``access_token``, ``refresh_token`` e ``user``
         da nova sessão, ou ``None`` se o token expirou / é inválido.
     """
-    client: Client = _get_admin_client()
+    # ── Debounce: evita que múltiplas threads façam refresh do mesmo token ──
+    with _refresh_lock:
+        if refresh_token in _refreshing_tokens:
+            logger.debug("Refresh already in progress for this token — waiting")
+            return None
+        _refreshing_tokens.add(refresh_token)
 
     try:
+        client: Client = _get_admin_client()
         resp = client.auth.refresh_session(refresh_token)
         if resp and resp.session:
             session = resp.session
@@ -419,6 +440,9 @@ def refresh_session(refresh_token: str) -> dict[str, Any] | None:
     except Exception:
         logger.exception("Failed to refresh session")
         return None
+    finally:
+        with _refresh_lock:
+            _refreshing_tokens.discard(refresh_token)
 
 
 # -----------------------------------------------------------

@@ -143,8 +143,12 @@ class LoginRequiredMiddleware(MiddlewareMixin):
 
             new_session: dict | None = auth_service.refresh_session(refresh_token)
             if new_session is None:
-                logger.warning("Session refresh failed — redirecting")
-                return self._redirect_to_login(request, clear=True)
+                # Pode ser falha real (token expirado) ou debounce
+                # (outra requisição já está fazendo refresh). Em ambos
+                # os casos, NÃO limpa os cookies — permite que o refresh
+                # da outra requisição conclua e atualize os cookies.
+                logger.debug("Session refresh unavailable — proceeding with request")
+                return None
 
             # Armazena novos tokens para persistir em process_response
             new_access: str = str(new_session["access_token"])

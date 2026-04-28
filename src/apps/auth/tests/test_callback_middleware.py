@@ -21,15 +21,12 @@ from django.urls import reverse
 from apps.auth.middleware import LoginRequiredMiddleware
 from apps.auth.views import auth_callback, auth_callback_process, logout_view
 
-
-# ---------------------------------------------------------------------------
-# Helpers
-# ---------------------------------------------------------------------------
+from .conftest import make_request  # noqa: E402
 
 
 def _get(path: str, data: dict | None = None) -> HttpRequest:
-    return RequestFactory().get(path, data or {})
-
+    """Helper: cria HttpRequest GET usando o make_request do conftest."""
+    return make_request("GET", path, data)
 
 # ---------------------------------------------------------------------------
 # GET /auth/callback (página de extração de hash)

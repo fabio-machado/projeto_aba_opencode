@@ -14,7 +14,6 @@ from __future__ import annotations
 
 import unittest
 from unittest.mock import MagicMock, patch
-from uuid import UUID
 
 from django.test import TestCase, override_settings
 
@@ -32,107 +31,13 @@ from apps.payments.services import (
     send_magic_link,
 )
 
-# ---------------------------------------------------------------------------
-# Dados de teste
-# ---------------------------------------------------------------------------
-
-VALID_EVENT: dict = {
-    "id": "evt_test_001",
-    "type": "payment_intent.succeeded",
-    "data": {
-        "object": {
-            "id": "pi_test_001",
-            "status": "succeeded",
-            "customer": "cus_test_001",
-            "receipt_email": "novo@exemplo.com",
-            "metadata": {"cpf": "123.456.789-00"},
-            "charges": {
-                "data": [
-                    {
-                        "billing_details": {
-                            "name": "João da Silva",
-                            "email": "novo@exemplo.com",
-                        }
-                    }
-                ]
-            },
-        }
-    },
-}
-
-EVENT_WITHOUT_EMAIL: dict = {
-    "id": "evt_test_no_email",
-    "type": "payment_intent.succeeded",
-    "data": {
-        "object": {
-            "id": "pi_test_no_email",
-            "customer": "cus_test_002",
-            "charges": {
-                "data": [{"billing_details": {"name": "Sem Email"}}]
-            },
-        }
-    },
-}
-
-TEST_USER_ID: str = "00000000-0000-0000-0000-000000000001"
-
-TEST_SETTINGS: dict = {
-    "STRIPE_WEBHOOK_SECRET": "whsec_test_secret",
-    "STRIPE_SECRET_KEY": "sk_test_key",
-    "SUPABASE_URL": "https://test.supabase.co",
-    "SUPABASE_SERVICE_KEY": "eyJ.test.service",
-    "SUPABASE_ANON_KEY": "eyJ.test.anon",
-    "APP_URL": "http://localhost:8000",
-}
-
-
-# ---------------------------------------------------------------------------
-# Helpers
-# ---------------------------------------------------------------------------
-
-def _make_mock_supabase_client() -> MagicMock:
-    """Retorna um MagicMock configurado como cliente Supabase.
-
-    Todas as tabelas retornam dados vazios por padrão (usuário inexistente,
-    evento não processado). Testes podem sobrescrever comportamentos
-    específicos.
-    """
-    mock_client: MagicMock = MagicMock()
-
-    # Auth defaults
-    mock_client.auth.admin.list_users.return_value = MagicMock(users=[])
-
-    mock_user: MagicMock = MagicMock()
-    mock_user.id = UUID(TEST_USER_ID)
-    mock_client.auth.admin.create_user.return_value = MagicMock(user=mock_user)
-
-    # Table routing: cada nome de tabela retorna um mock com respostas padrão
-    def _table_handler(name: str) -> MagicMock:
-        t: MagicMock = MagicMock()
-        if name == "processed_webhook_events":
-            t.select.return_value.eq.return_value.limit.return_value.execute.return_value = (
-                MagicMock(data=[])
-            )
-            t.insert.return_value.execute.return_value = MagicMock(data=[])
-        elif name == "profiles":
-            t.select.return_value.eq.return_value.limit.return_value.execute.return_value = (
-                MagicMock(data=[])
-            )
-            t.insert.return_value.execute.return_value = MagicMock(
-                data=[{"id": TEST_USER_ID, "email": "novo@exemplo.com"}]
-            )
-        elif name == "audit_logs":
-            t.insert.return_value.execute.return_value = MagicMock(
-                data=[{"id": TEST_USER_ID}]
-            )
-        elif name == "magic_link_logs":
-            t.insert.return_value.execute.return_value = MagicMock(
-                data=[{"id": TEST_USER_ID}]
-            )
-        return t
-
-    mock_client.table.side_effect = _table_handler
-    return mock_client
+from .conftest import (  # noqa: E402
+    VALID_EVENT,
+    EVENT_WITHOUT_EMAIL,
+    TEST_USER_ID,
+    TEST_SETTINGS,
+    make_mock_supabase_client as _make_mock_supabase_client,
+)
 
 
 # ---------------------------------------------------------------------------
@@ -309,7 +214,7 @@ class AccountCreationTests(TestCase):
         mock_get_client.return_value = mock_client
 
         mock_user: MagicMock = MagicMock()
-        mock_user.id = UUID(TEST_USER_ID)
+        mock_user.id = TEST_USER_ID
         mock_client.auth.admin.create_user.return_value = MagicMock(user=mock_user)
 
         # Captura o insert na tabela profiles

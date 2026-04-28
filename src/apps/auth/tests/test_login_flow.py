@@ -12,27 +12,15 @@ Cobre:
 
 from unittest.mock import MagicMock, patch
 
-from django.http import HttpRequest, HttpResponse
+from django.http import HttpResponse
 from django.template.response import TemplateResponse
-from django.test import RequestFactory, TestCase, override_settings
+from django.test import TestCase, override_settings
 from django.urls import reverse
 
 from apps.auth import services as auth_service
 from apps.auth.views import login_view, login_submit
 
-
-# ---------------------------------------------------------------------------
-# Helpers
-# ---------------------------------------------------------------------------
-
-
-def _request(method: str, path: str, data: dict | None = None) -> HttpRequest:
-    """Cria um HttpRequest com o método, path e dados especificados."""
-    factory = RequestFactory()
-    if method == "GET":
-        return factory.get(path, data or {})
-    return factory.post(path, data or {})
-
+from .conftest import make_request as _request  # noqa: E402
 
 # ---------------------------------------------------------------------------
 # GET /login

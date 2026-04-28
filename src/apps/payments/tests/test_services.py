@@ -32,22 +32,14 @@ from apps.payments.services import (
     validate_stripe_signature,
 )
 
+from .conftest import TEST_USER_ID, TEST_SETTINGS  # noqa: E402
+
 # ---------------------------------------------------------------------------
-# Dados de teste comuns
+# Constantes locais (não compartilhadas)
 # ---------------------------------------------------------------------------
 
-TEST_USER_ID: str = "00000000-0000-0000-0000-000000000001"
 TEST_EMAIL: str = "novo@exemplo.com"
 TEST_FULL_NAME: str = "João da Silva"
-
-TEST_SETTINGS: dict = {
-    "STRIPE_WEBHOOK_SECRET": "whsec_test_secret",
-    "STRIPE_SECRET_KEY": "sk_test_key",
-    "SUPABASE_URL": "https://test.supabase.co",
-    "SUPABASE_SERVICE_KEY": "eyJ.test.service",
-    "SUPABASE_KEY": "eyJ.test.anon",
-    "APP_URL": "http://localhost:8000",
-}
 
 
 # ---------------------------------------------------------------------------
@@ -300,6 +292,47 @@ class CreateSupabaseUserTest(TestCase):
         client: MagicMock = _mock_client()
         client.auth.admin.create_user.side_effect = Exception(
             "User already registered"
+        )
+        mock_get.return_value = client
+
+        result: dict = create_supabase_user(
+            email=TEST_EMAIL, full_name=TEST_FULL_NAME
+        )
+
+        self.assertEqual(result, {})
+
+    @patch("apps.payments.services._get_admin_client")
+    def test_usuario_ja_existente_string_alternativa_retorna_dict_vazio(
+        self, mock_get: MagicMock
+    ) -> None:
+        """FR-005: Given email já registrado com mensagem "already exists", When criado, Then retorna dict vazio.
+
+        Cobre a variante da string de erro do Supabase Auth: "User already exists"
+        (diferente de "User already registered").
+        """
+        client: MagicMock = _mock_client()
+        client.auth.admin.create_user.side_effect = Exception(
+            "User already exists"
+        )
+        mock_get.return_value = client
+
+        result: dict = create_supabase_user(
+            email=TEST_EMAIL, full_name=TEST_FULL_NAME
+        )
+
+        self.assertEqual(result, {})
+
+    @patch("apps.payments.services._get_admin_client")
+    def test_usuario_ja_existente_string_duplicate_retorna_dict_vazio(
+        self, mock_get: MagicMock
+    ) -> None:
+        """FR-005: Given email já registrado com mensagem "duplicate", When criado, Then retorna dict vazio.
+
+        Cobre a variante da string de erro do Supabase Auth: "duplicate key ..."
+        """
+        client: MagicMock = _mock_client()
+        client.auth.admin.create_user.side_effect = Exception(
+            "duplicate key value violates unique constraint"
         )
         mock_get.return_value = client
 

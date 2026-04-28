@@ -18,48 +18,7 @@ import stripe
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
-# ---------------------------------------------------------------------------
-# Dados de teste comuns
-# ---------------------------------------------------------------------------
-
-VALID_EVENT: dict = {
-    "id": "evt_test_001",
-    "type": "payment_intent.succeeded",
-    "data": {
-        "object": {
-            "id": "pi_test_001",
-            "status": "succeeded",
-            "customer": "cus_test_001",
-            "receipt_email": "novo@exemplo.com",
-            "metadata": {"cpf": "123.456.789-00"},
-            "charges": {
-                "data": [
-                    {
-                        "billing_details": {
-                            "name": "João da Silva",
-                            "email": "novo@exemplo.com",
-                        }
-                    }
-                ]
-            },
-        }
-    },
-}
-
-NON_PAYMENT_EVENT: dict = {
-    "id": "evt_test_other",
-    "type": "charge.refunded",
-    "data": {"object": {}},
-}
-
-TEST_SETTINGS: dict = {
-    "STRIPE_WEBHOOK_SECRET": "whsec_test_secret",
-    "STRIPE_SECRET_KEY": "sk_test_key",
-    "SUPABASE_URL": "https://test.supabase.co",
-    "SUPABASE_SERVICE_KEY": "eyJ.test.service",
-    "SUPABASE_ANON_KEY": "eyJ.test.anon",
-    "APP_URL": "http://localhost:8000",
-}
+from .conftest import VALID_EVENT, NON_PAYMENT_EVENT, TEST_SETTINGS  # noqa: E402
 
 
 # ---------------------------------------------------------------------------

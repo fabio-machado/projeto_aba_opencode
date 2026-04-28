@@ -22,93 +22,13 @@ from apps.payments.services import (
     validate_magic_link_callback,
 )
 
-# ---------------------------------------------------------------------------
-# Dados de teste
-# ---------------------------------------------------------------------------
-
-VALID_EVENT: dict = {
-    "id": "evt_test_001",
-    "type": "payment_intent.succeeded",
-    "data": {
-        "object": {
-            "id": "pi_test_001",
-            "status": "succeeded",
-            "customer": "cus_test_001",
-            "receipt_email": "novo@exemplo.com",
-            "metadata": {"cpf": "123.456.789-00"},
-            "charges": {
-                "data": [
-                    {
-                        "billing_details": {
-                            "name": "João da Silva",
-                            "email": "novo@exemplo.com",
-                        }
-                    }
-                ]
-            },
-        }
-    },
-}
-
-TEST_USER_ID: str = "00000000-0000-0000-0000-000000000001"
-
-TEST_SETTINGS: dict = {
-    "STRIPE_WEBHOOK_SECRET": "whsec_test_secret",
-    "STRIPE_SECRET_KEY": "sk_test_key",
-    "SUPABASE_URL": "https://test.supabase.co",
-    "SUPABASE_SERVICE_KEY": "eyJ.test.service",
-    "SUPABASE_ANON_KEY": "eyJ.test.anon",
-    "APP_URL": "http://localhost:8000",
-}
-
-
-# ---------------------------------------------------------------------------
-# Helpers
-# ---------------------------------------------------------------------------
-
-def _make_mock_supabase_client() -> MagicMock:
-    """Retorna um MagicMock configurado como cliente Supabase."""
-    mock_client: MagicMock = MagicMock()
-
-    mock_client.auth.admin.list_users.return_value = MagicMock(users=[])
-
-    mock_user: MagicMock = MagicMock()
-    mock_user.id = TEST_USER_ID
-    mock_client.auth.admin.create_user.return_value = MagicMock(user=mock_user)
-
-    def _table_handler(name: str) -> MagicMock:
-        t: MagicMock = MagicMock()
-        if name == "processed_webhook_events":
-            t.select.return_value.eq.return_value.limit.return_value.execute.return_value = (
-                MagicMock(data=[])
-            )
-            t.insert.return_value.execute.return_value = MagicMock(data=[])
-        elif name == "profiles":
-            t.select.return_value.eq.return_value.limit.return_value.execute.return_value = (
-                MagicMock(data=[])
-            )
-            t.insert.return_value.execute.return_value = MagicMock(
-                data=[{"id": TEST_USER_ID, "email": "novo@exemplo.com"}]
-            )
-        elif name == "audit_logs":
-            t.insert.return_value.execute.return_value = MagicMock(
-                data=[{"id": TEST_USER_ID}]
-            )
-        elif name == "magic_link_logs":
-            t.insert.return_value.execute.return_value = MagicMock(
-                data=[{"id": TEST_USER_ID}]
-            )
-        return t
-
-    mock_client.table.side_effect = _table_handler
-    return mock_client
-
-
-def _build_fake_jwt(sub: str) -> str:
-    """Constrói um JWT falso com o claim 'sub' fornecido."""
-    payload_bytes: bytes = json.dumps({"sub": sub}).encode()
-    payload_b64: str = base64.urlsafe_b64encode(payload_bytes).decode().rstrip("=")
-    return f"header.{payload_b64}.signature"
+from .conftest import (  # noqa: E402
+    VALID_EVENT,
+    TEST_USER_ID,
+    TEST_SETTINGS,
+    make_mock_supabase_client as _make_mock_supabase_client,
+    build_fake_jwt as _build_fake_jwt,
+)
 
 
 # ---------------------------------------------------------------------------

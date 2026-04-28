@@ -146,7 +146,7 @@ class LogoutTest(TestCase):
     """Rota de logout."""
 
     def test_logout_clears_cookies(self) -> None:
-        """GET /logout limpa cookies e redireciona."""
+        """FR-020: GET /logout limpa cookies e redireciona."""
         request = _get("/logout/")
         request.COOKIES["supabase_session"] = "token"
         request.COOKIES["supabase_refresh"] = "refresh"
@@ -154,6 +154,13 @@ class LogoutTest(TestCase):
 
         self.assertEqual(response.status_code, 302)
         self.assertIn("/login", response["Location"])
+        # FR-020: Verifica que os cookies de sessão foram removidos
+        # (delete_cookie seta max_age=0 ou valor vazio)
+        self.assertIn("supabase_session", response.cookies)
+        self.assertIn("supabase_refresh", response.cookies)
+        # Cookies devem ter max_age=0 (expiração imediata) para limpeza
+        self.assertEqual(response.cookies["supabase_session"]["max-age"], 0)
+        self.assertEqual(response.cookies["supabase_refresh"]["max-age"], 0)
 
 
 # ---------------------------------------------------------------------------
@@ -171,7 +178,7 @@ class LoginRequiredMiddlewareTest(TestCase):
         return RequestFactory().get(path)
 
     def test_exempt_url_login_is_allowed(self) -> None:
-        """Rota /login/ é pública (whitelist)."""
+        """FR-013: Rota /login/ é pública (whitelist)."""
         request = self._make_request("/login/")
         result = self.middleware.process_view(request, None, None, None)
         self.assertIsNone(result)  # None = permite continuar

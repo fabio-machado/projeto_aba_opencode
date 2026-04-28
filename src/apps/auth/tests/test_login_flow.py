@@ -51,11 +51,12 @@ class LoginPageTest(TestCase):
 
     @override_settings(LOGIN_URL="/login/")
     def test_login_page_authenticated_user_redirects(self) -> None:
-        """Usuário com cookie supabase_session é redirecionado para /app."""
+        """FR-014: Usuário com cookie supabase_session é redirecionado para área restrita."""
         request = _request("GET", "/login/")
         request.COOKIES["supabase_session"] = "fake-token"
         response: HttpResponse = login_view(request)
         self.assertEqual(response.status_code, 302)
+        self.assertEqual(response["Location"], auth_service.REDIRECT_TO_URL)
 
     def test_login_page_error_param_invalid_magic_link(self) -> None:
         """?error=invalid_magic_link exibe mensagem apropriada."""
@@ -72,6 +73,22 @@ class LoginPageTest(TestCase):
         response.render()
         content: str = response.content.decode()
         self.assertIn("não está disponível", content.lower())
+
+    def test_login_page_error_param_unexpected(self) -> None:
+        """?error=unexpected exibe mensagem de erro genérica."""
+        request = _request("GET", "/login/?error=unexpected")
+        response: TemplateResponse = login_view(request)
+        response.render()
+        content: str = response.content.decode()
+        self.assertIn("inesperado", content.lower())
+
+    def test_login_page_preserves_next_url_in_context(self) -> None:
+        """?next=/routines/ preserva a URL de destino no contexto do template."""
+        request = _request("GET", "/login/?next=/routines/")
+        response: TemplateResponse = login_view(request)
+        response.render()
+        content: str = response.content.decode()
+        self.assertIn("/routines/", content)
 
     def test_login_page_contains_support_email(self) -> None:
         """Página de login contém o link de suporte."""
@@ -115,14 +132,31 @@ class LoginSubmitFormatTest(TestCase):
         content: str = response.content.decode()
         self.assertIn("login-error", content)
 
-    def test_valid_format_passes_validation(self) -> None:
-        """E-mail com @ passa pela validação de formato."""
+    @patch("apps.auth.views.auth_service.send_magic_link", return_value=True)
+    @patch("apps.auth.views.auth_service.validate_user")
+    @patch("apps.auth.views.auth_service.check_rate_limit", return_value=None)
+    @patch("apps.auth.views.auth_service.log_attempt")
+    def test_valid_format_passes_validation(
+        self,
+        mock_log: MagicMock,
+        mock_rate: MagicMock,
+        mock_validate: MagicMock,
+        mock_send: MagicMock,
+    ) -> None:
+        """FR-002: E-mail com @ passa pela validação de formato e chega ao service."""
+        mock_validate.return_value = {
+            "id": "user-123",
+            "subscription_status": "active",
+            "has_generator_access": True,
+            "has_library_access": False,
+        }
         request = _request("POST", "/login/submit/", {"email": "usuario@exemplo.com"})
         response: TemplateResponse = login_submit(request)
         response.render()
         content: str = response.content.decode()
-        # Deve ter passado pela validação de formato (erro virá de validate_user)
         self.assertNotIn("formato", content.lower())
+        # Valida que o e-mail passou pela validação de formato e chegou ao service
+        mock_validate.assert_called_once_with("usuario@exemplo.com")
 
 
 # ---------------------------------------------------------------------------
@@ -181,25 +215,29 @@ class LoginSubmitBusinessFlowTest(TestCase):
         self.assertIn("login-error", content)
         self.assertIn("não encontrado", content.lower())
 
-    @patch("apps.auth.views.auth_service.AccountInactiveError", Exception)
-    @patch("apps.auth.views.auth_service.validate_user")
     @patch("apps.auth.views.auth_service.check_rate_limit", return_value=None)
     @patch("apps.auth.views.auth_service.log_attempt")
     def test_account_inactive_returns_error(
         self,
         mock_log: MagicMock,
         mock_rate: MagicMock,
-        mock_validate: MagicMock,
     ) -> None:
-        """Conta inativa retorna erro apropriado."""
-        mock_validate.side_effect = Exception("inactive")
+        """FR-005: Conta inativa retorna erro apropriado com AccountInactiveError."""
+        from apps.auth.services import AccountInactiveError
 
         request = _request("POST", "/login/submit/", {"email": "cancelado@exemplo.com"})
-        response: TemplateResponse = login_submit(request)
+
+        with patch(
+            "apps.auth.views.auth_service.validate_user",
+            side_effect=AccountInactiveError("cancelado@exemplo.com", "canceled"),
+        ):
+            response: TemplateResponse = login_submit(request)
+
         response.render()
         content: str = response.content.decode()
-
         self.assertIn("login-error", content)
+        # FR-016: Verifica que a razão da rejeição é registrada
+        self.assertEqual(mock_log.call_args[0][3], "account_inactive")
 
     @patch("apps.auth.views.auth_service.validate_user", return_value={"id": "123"})
     @patch("apps.auth.views.auth_service.send_magic_link", return_value=False)

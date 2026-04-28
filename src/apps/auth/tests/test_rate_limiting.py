@@ -36,7 +36,7 @@ class RateLimitEmailTest(TestCase):
 
     @patch("apps.auth.services._get_admin_client")
     def test_rate_limit_email_blocked(self, mock_client: MagicMock) -> None:
-        """3+ tentativas no mesmo e-mail em 60s → bloqueado."""
+        """FR-011: 3+ tentativas no mesmo e-mail em 60s → bloqueado."""
         mock_resp = MagicMock()
         mock_resp.count = 3
         mock_client.return_value.table.return_value.select.return_value.eq.return_value.gte.return_value.execute.return_value = mock_resp
@@ -49,7 +49,7 @@ class RateLimitIPTest(TestCase):
 
     @patch("apps.auth.services._get_admin_client")
     def test_rate_limit_ip_blocked(self, mock_client: MagicMock) -> None:
-        """10+ tentativas do mesmo IP em 60s → bloqueado."""
+        """FR-011: 10+ tentativas do mesmo IP em 60s → bloqueado."""
         # Primeira chamada: email count = 1 (passa)
         # Segunda chamada: ip count = 10 (bloqueia)
         mock_email = MagicMock()
@@ -73,7 +73,7 @@ class EnumerationDetectionTest(TestCase):
 
     @patch("apps.auth.services._get_admin_client")
     def test_enumeration_detected(self, mock_client: MagicMock) -> None:
-        """5+ e-mails distintos rejeitados do mesmo IP em 60s → enumeração."""
+        """FR-015: 5+ e-mails distintos rejeitados do mesmo IP em 60s → enumeração."""
         mock_email = MagicMock()
         mock_email.count = 1
         mock_ip = MagicMock()
@@ -141,6 +141,22 @@ class EnumerationDetectionTest(TestCase):
 
 
 # ---------------------------------------------------------------------------
+# Rate limit error handling
+# ---------------------------------------------------------------------------
+
+
+class RateLimitErrorTest(TestCase):
+    """Fallback quando as queries de rate limiting falham."""
+
+    @patch("apps.auth.services._get_admin_client")
+    def test_rate_limit_error_graceful_fallback(self, mock_client: MagicMock) -> None:
+        """FR-011: Erro na query de rate limit faz fallback (retorna None)."""
+        mock_client.return_value.table.return_value.select.return_value.eq.return_value.gte.return_value.execute.side_effect = Exception("DB error")
+        result = check_rate_limit("teste@exemplo.com", "192.168.0.1")
+        self.assertIsNone(result)
+
+
+# ---------------------------------------------------------------------------
 # log_attempt
 # ---------------------------------------------------------------------------
 
@@ -150,22 +166,15 @@ class LogAttemptTest(TestCase):
 
     @patch("apps.auth.services._get_admin_client")
     def test_log_attempt_success(self, mock_client: MagicMock) -> None:
-        """Tentativa bem-sucedida é registrada com result='success'."""
+        """FR-016: Tentativa bem-sucedida é registrada com result='success'."""
         log_attempt("teste@exemplo.com", "192.168.0.1", "success", None)
         mock_client.return_value.table.assert_called_with("login_attempts")
         mock_client.return_value.table.return_value.insert.assert_called_once()
 
     @patch("apps.auth.services._get_admin_client")
     def test_log_attempt_rejected_with_reason(self, mock_client: MagicMock) -> None:
-        """Tentativa rejeitada registra o motivo da recusa."""
+        """FR-016: Tentativa rejeitada registra o motivo da recusa."""
         log_attempt("teste@exemplo.com", "192.168.0.1", "rejected", "email_not_found")
         insert_call = mock_client.return_value.table.return_value.insert.call_args[0][0]
         self.assertEqual(insert_call["result"], "rejected")
         self.assertEqual(insert_call["rejection_reason"], "email_not_found")
-
-    @patch("apps.auth.services._get_admin_client")
-    def test_rate_limit_error_graceful_fallback(self, mock_client: MagicMock) -> None:
-        """Erro na query de rate limit faz fallback (retorna None)."""
-        mock_client.return_value.table.return_value.select.return_value.eq.return_value.gte.return_value.execute.side_effect = Exception("DB error")
-        result = check_rate_limit("teste@exemplo.com", "192.168.0.1")
-        self.assertIsNone(result)

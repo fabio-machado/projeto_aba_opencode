@@ -128,6 +128,7 @@ O sistema protege contra abuso limitando solicitações de Magic Link tanto por 
 - **FR-017**: O sistema DEVE invalidar a sessão ativa de um usuário imediatamente quando sua conta for marcada como inativa ou cancelada (via atualização proveniente do webhook Stripe), forçando reautenticação na próxima requisição.
 - **FR-018**: O sistema DEVE configurar o Magic Link para expirar em 1 hora caso não seja clicado (tempo de vida padrão do OTP).
 - **FR-019**: A tela de login DEVE atender aos critérios WCAG 2.1 Nível AA, incluindo: labels semânticos para leitores de tela, navegação completa por teclado com foco visível, e contraste mínimo de 4.5:1 entre texto e fundo.
+- **FR-020**: O sistema DEVE disponibilizar uma rota de logout acessível ao usuário autenticado, que encerra a sessão ativa (remove cookies de sessão) e redireciona para a tela de login.
 
 ### Key Entities *(include if feature involves data)*
 

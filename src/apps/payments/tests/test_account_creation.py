@@ -10,6 +10,8 @@ Cobre:
 - Todos os campos do perfil persistidos corretamente
 """
 
+from __future__ import annotations
+
 import unittest
 from unittest.mock import MagicMock, patch
 from uuid import UUID

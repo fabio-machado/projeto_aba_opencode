@@ -9,9 +9,10 @@ Cobre:
 - STRIPE_WEBHOOK_SECRET não configurado
 """
 
+from __future__ import annotations
+
 import json
 from unittest.mock import MagicMock, patch
-from urllib.parse import urlencode
 
 import stripe
 from django.test import TestCase, override_settings

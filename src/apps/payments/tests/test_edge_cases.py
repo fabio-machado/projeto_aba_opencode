@@ -7,13 +7,14 @@ Cobre:
 - Audit logs registrados no fluxo completo (user_created, magic_link_sent, webhook_processed)
 - Audit log para user_exists
 - has_active_session fallback (list_sessions indisponível → get_user_by_id)
-- Auth callback view (cookie + redirect)
+- has_active_session erro genérico retorna False
 """
+
+from __future__ import annotations
 
 from unittest.mock import MagicMock, patch
 
 from django.test import TestCase, override_settings
-from django.urls import reverse
 
 from apps.payments.services import (
     has_active_session,
@@ -265,46 +266,8 @@ class EdgeCaseTests(TestCase):
 
         self.assertFalse(result)
 
-    @override_settings(**TEST_SETTINGS)
-    def test_auth_callback_valido_redirect_com_cookie(self) -> None:
-        """Given magic link callback válido, When GET /auth/callback, Then redirect + cookie."""
-        import base64
-        import json
-
-        payload: bytes = json.dumps({"sub": TEST_USER_ID}).encode()
-        payload_b64: str = (
-            base64.urlsafe_b64encode(payload).decode().rstrip("=")
-        )
-        fake_token: str = f"header.{payload_b64}.signature"
-
-        resp = self.client.get(
-            reverse("auth:auth_callback"),
-            {
-                "access_token": fake_token,
-                "refresh_token": "refresh_xxx",
-                "type": "magiclink",
-            },
-        )
-
-        # Deve redirecionar para /dashboard
-        self.assertEqual(resp.status_code, 302)
-        self.assertIn("/dashboard", resp.url)
-
-        # Deve setar cookie HTTP-only
-        cookie: str = resp.cookies.get("supabase_session").value
-        self.assertEqual(cookie, fake_token)
-
-    @override_settings(**TEST_SETTINGS)
-    def test_auth_callback_invalido_redirect_login(self) -> None:
-        """Given callback inválido (token_type errado), When GET, Then redirect /login."""
-        resp = self.client.get(
-            reverse("auth:auth_callback"),
-            {
-                "access_token": "any",
-                "refresh_token": "any",
-                "type": "signup",
-            },
-        )
-
-        self.assertEqual(resp.status_code, 302)
-        self.assertIn("/login", resp.url)
+    # ── Nota ────────────────────────────────────────────────────────────
+    # Os testes de auth_callback foram migrados para apps.auth.tests
+    # (test_callback_middleware.py / test_login_flow.py) durante a
+    # migração da feature 004-auth-login-magic-link.
+    # ─────────────────────────────────────────────────────────────────────

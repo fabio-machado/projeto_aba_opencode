@@ -8,6 +8,8 @@ Cobre:
 - Validação de callback: sucesso, tipo inválido, tokens vazios, JWT malformado
 """
 
+from __future__ import annotations
+
 import base64
 import json
 from unittest.mock import MagicMock, patch

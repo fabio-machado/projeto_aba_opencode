@@ -5,6 +5,8 @@ Cobre:
 - Webhook responde em menos de 3000ms com service mockado
 """
 
+from __future__ import annotations
+
 import json
 import time
 from unittest.mock import MagicMock, patch

@@ -8,6 +8,8 @@ Cobre:
 - mark_event_processed com erro inesperado → retorna False
 """
 
+from __future__ import annotations
+
 from unittest.mock import MagicMock, patch
 
 from django.test import TestCase, override_settings

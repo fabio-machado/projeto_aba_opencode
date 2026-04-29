@@ -31,6 +31,10 @@ logger = logging.getLogger(__name__)
 _refresh_lock = threading.Lock()
 _refreshing_tokens: set[str] = set()
 
+# Sentinela para distinguir debounce de falha real.
+# Devolvido quando outra thread já está renovando o mesmo token.
+_refresh_debounced = object()
+
 # -----------------------------------------------------------
 # Configuration
 # -----------------------------------------------------------
@@ -419,7 +423,7 @@ def refresh_session(refresh_token: str) -> dict[str, Any] | None:
     with _refresh_lock:
         if refresh_token in _refreshing_tokens:
             logger.debug("Refresh already in progress for this token — waiting")
-            return None
+            return _refresh_debounced  # sentinela: debounce, não falha
         _refreshing_tokens.add(refresh_token)
 
     try:

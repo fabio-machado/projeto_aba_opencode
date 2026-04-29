@@ -1,10 +1,15 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+  {% load pwa %}
+  {% progressive_web_app_meta %}
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="description" content="Autismo em Foco — Plataforma de Registro ABA">
   <meta name="theme-color" content="#14b8a6">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="apple-touch-icon" sizes="192x192" href="/static/images/pwa/icon-192x192.png">
+  <link rel="apple-touch-icon" sizes="512x512" href="/static/images/pwa/icon-512x512.png">
   <title>{% block title %}Autismo em Foco{% endblock %}</title>
 
   {# ── T003: Anti-FART — síncrono, antes de qualquer CSS ────── #}
@@ -122,6 +127,12 @@
     });
   </script>
 
-  {% block extra_scripts %}{% endblock %}
+  {# ── T015: PWA install banner ──────────────────────────── #}
+  {% include "partials/pwa/_install_banner.html" %}
+
+  {% block extra_scripts %}
+  <script src="/static/js/pwa-session-manager.js"></script>
+  <script src="/static/js/pwa-install-banner.js"></script>
+  {% endblock %}
 </body>
 </html>

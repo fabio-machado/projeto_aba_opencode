@@ -30,7 +30,26 @@ INSTALLED_APPS = [
     "apps.settings",
     "apps.payments",
     "apps.auth",
+    "pwa",
 ]
+
+PWA_APP_NAME = "Autismo em Foco"
+PWA_APP_THEME_COLOR = "#14b8a6"
+PWA_APP_BACKGROUND_COLOR = "#f8fafc"
+PWA_APP_DISPLAY = "standalone"
+PWA_APP_ORIENTATION = "portrait"
+PWA_APP_START_URL = "/"
+PWA_APP_SCOPE = "/"
+PWA_APP_STATUS_BAR_COLOR = "black-translucent"
+PWA_APP_ICONS = [
+    {"src": "/static/images/pwa/icon-192x192.png", "sizes": "192x192"},
+    {"src": "/static/images/pwa/icon-512x512.png", "sizes": "512x512"},
+]
+PWA_APP_ICONS_APPLE = [
+    {"src": "/static/images/pwa/icon-192x192.png", "sizes": "192x192"},
+    {"src": "/static/images/pwa/icon-512x512.png", "sizes": "512x512"},
+]
+PWA_SERVICE_WORKER_PATH = "/app/src/static/js/serviceworker.js"
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -180,4 +199,7 @@ LOGIN_EXEMPT_URLS = [
     r"^/webhooks/stripe",
     r"^/admin/",
     r"^/static/",
+    r"^/manifest\.json$",
+    r"^/manifest\.webmanifest$",
+    r"^/serviceworker\.js$",
 ]

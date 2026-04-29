@@ -6,6 +6,7 @@ from django.contrib import admin
 from django.urls import include, path
 
 urlpatterns = [
+    path("", include("pwa.urls")),
     path("admin/", admin.site.urls),
     path("", include("apps.core.urls")),
     path("routines/", include("apps.routines.urls")),

@@ -1,6 +1,7 @@
 # Django Core
 Django>=5.0,<6.0
 django-htmx>=1.17.0
+django-pwa>=2.0.0
 
 # Supabase
 supabase>=2.0.0

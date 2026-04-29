@@ -31,7 +31,7 @@
   window.dismissInstallBanner = function () {
     localStorage.setItem('aef_pwa_banner_dismissed', 'true');
     var d = new Date();
-    d.setDate(d.getDate() + 30);
+    d.setDate(d.getDate() + 1);
     localStorage.setItem('aef_pwa_banner_dismissed_until', d.toISOString());
     document.body.dispatchEvent(new CustomEvent('pwa:banner-dismissed'));
   };

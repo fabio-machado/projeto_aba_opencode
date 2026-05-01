@@ -89,7 +89,7 @@ O cuidador, a partir do "Mural", toca em um botão de ação rápida em um card 
 
 - O que acontece quando o cuidador adiciona o mesmo pictograma múltiplas vezes à mesma rotina? O sistema deve permitir — pictogramas repetidos são válidos (ex: "Lavar as mãos" antes e depois do lanche).
 - O que acontece quando a gaveta de categorias tem apenas uma categoria com pictogramas? As abas ainda devem ser exibidas, permitindo navegação entre categorias mesmo que algumas estejam vazias.
-- O que acontece quando o cuidador tenta salvar com título muito longo (ex: >200 caracteres)? O sistema deve truncar ou validar o comprimento máximo com mensagem clara.
+- O que acontece quando o cuidador tenta salvar com título acima do limite de 100 caracteres? O sistema deve rejeitar com mensagem clara de validação (limite máximo definido nas assumptions).
 - O que acontece durante a edição se a conexão com o servidor cair ao salvar? O sistema deve preservar os dados localmente (LocalStorage) e oferecer nova tentativa de sincronização.
 - O que acontece quando o cuidador acessa o construtor sem pictogramas disponíveis no banco? A gaveta deve exibir mensagem informativa ("Nenhum pictograma disponível no momento") em vez de uma grade vazia.
 - O que acontece quando o nome da criança não está disponível (ex: primeiro acesso, perfil incompleto)? O cabeçalho do mural deve exibir um fallback genérico como "Minhas Rotinas".

@@ -21,6 +21,9 @@ pytest-django>=4.8.0
 pytest-cov>=5.0.0
 coverage>=7.0.0
 
+# PDF Generation
+reportlab>=4.0
+
 # Type Checking
 django-stubs>=5.0.0
 mypy>=1.8.0

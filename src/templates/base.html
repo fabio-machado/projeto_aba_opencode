@@ -88,6 +88,9 @@
   hx-boost="true"
   hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
   x-data="appShell()"
+  @htmx:after-swap.window="detectActiveSection()"
+  @htmx:pushed-into-history.window="detectActiveSection()"
+  @popstate.window="detectActiveSection()"
   class="bg-surface text-on-surface font-sans min-h-screen transition-theme flex flex-col items-center"
 >
 
@@ -117,17 +120,8 @@
   <script src="/static/js/app-shell.js"></script>
   <script src="/static/js/bottom-sheet.js"></script>
 
-  {# ── HTMX + Alpine.js sync: re-detect active section after swap ── #}
-  <script>
-    document.body.addEventListener('htmx:afterSwap', function() {
-      const el = document.querySelector('[x-data]');
-      if (el && el.__x) {
-        el.__x.$data.detectActiveSection();
-      }
-    });
-  </script>
-
-  {# ── T015: PWA install banner ──────────────────────────── #}
+  {# ── HTMX + Alpine.js sync: detect active section after swap ── #}
+  {# Listeners adicionados no body para Alpine v3: @htmx:after-swap.window e @htmx:history-restore.window #}
   {% include "partials/pwa/_install_banner.html" %}
 
   {% block extra_scripts %}

@@ -1,0 +1,109 @@
+{# src/apps/routines/templates/routines/partials/_routine_card.html #}
+<article 
+  id="routine-card-{{ routine.id }}" 
+  class="bg-surface rounded-card border border-border shadow-sm p-4 relative transition-all duration-200 hover:shadow-md"
+  x-data="{ editMode: false, showMenu: false, newTitle: '{{ routine.title|escapejs }}' }"
+>
+  <div class="flex items-start justify-between gap-3">
+    
+    {# ── Título (Modo visualização) ────────────────────────────────── #}
+    <div class="flex-1" x-show="!editMode">
+      <h3 class="text-title font-semibold text-on-surface line-clamp-2">
+        {{ routine.title }}
+      </h3>
+      <p class="text-caption text-on-surface-muted mt-1">
+        {{ routine.item_count }} pictograma{{ routine.item_count|pluralize }}
+      </p>
+    </div>
+
+    {# ── Título (Modo edição inline via HTMX / T054) ──────────────── #}
+    <div class="flex-1" x-show="editMode" x-cloak>
+      <form 
+        hx-post="/routines/{{ routine.id }}/rename/"
+        hx-target="#routine-card-{{ routine.id }}"
+        hx-swap="outerHTML"
+        @submit="editMode = false"
+        class="flex flex-col gap-2"
+      >
+        <input 
+          type="text" 
+          name="title" 
+          x-model="newTitle" 
+          class="w-full rounded-input border border-border bg-surface px-3 py-2 text-body focus:outline-none focus:ring-2 focus:ring-primary"
+          required
+          autofocus
+          @keyup.escape="editMode = false; newTitle = '{{ routine.title|escapejs }}'"
+        >
+        <div class="flex gap-2 justify-end">
+          <button type="button" @click="editMode = false; newTitle = '{{ routine.title|escapejs }}'" class="text-caption text-on-surface-muted hover:text-on-surface">Cancelar</button>
+          <button type="submit" class="text-caption text-primary font-semibold hover:opacity-80">Salvar</button>
+        </div>
+      </form>
+    </div>
+
+    {# ── Menu Ellipsis ──────────────────────────────────────────────── #}
+    <div class="relative flex-shrink-0" @click.outside="showMenu = false">
+      <button 
+        type="button" 
+        @click="showMenu = !showMenu"
+        class="w-8 h-8 rounded-full flex items-center justify-center hover:bg-surface-variant text-on-surface-muted transition-colors"
+        aria-label="Opções da rotina"
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 12.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 18.75a.75.75 0 110-1.5.75.75 0 010 1.5z"/>
+        </svg>
+      </button>
+
+      {# Dropdown de opções #}
+      <div 
+        x-show="showMenu" 
+        x-transition
+        x-cloak
+        class="absolute right-0 mt-1 w-40 bg-surface border border-border rounded-card shadow-lg z-10 py-1"
+      >
+        <button 
+          type="button"
+          @click="editMode = true; showMenu = false;"
+          class="w-full text-left px-4 py-2 text-body text-on-surface hover:bg-surface-variant transition-colors"
+        >
+          Renomear
+        </button>
+        
+        <button 
+          type="button"
+          hx-delete="/routines/{{ routine.id }}/delete/"
+          hx-target="#routine-card-{{ routine.id }}"
+          hx-swap="outerHTML swap:150ms"
+          hx-confirm="Tem certeza que deseja excluir esta rotina?"
+          class="w-full text-left px-4 py-2 text-body text-error hover:bg-error/10 transition-colors"
+        >
+          Excluir
+        </button>
+      </div>
+    </div>
+  </div>
+
+  {# ── Ações da Base (Exportar PDF) ────────────────────────────────── #}
+  <div class="mt-4 flex gap-2">
+    <a 
+      href="/routines/{{ routine.id }}/export/" 
+      target="_blank"
+      class="inline-flex items-center gap-1.5 text-caption font-medium text-primary bg-primary/10 px-3 py-1.5 rounded-button hover:bg-primary/20 transition-colors"
+    >
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/>
+      </svg>
+      Exportar PDF
+    </a>
+    
+    <a 
+      href="/routines/{{ routine.id }}/" 
+      class="inline-flex items-center gap-1.5 text-caption font-medium text-on-surface-muted bg-surface-variant px-3 py-1.5 rounded-button hover:text-on-surface hover:bg-border transition-colors"
+    >
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125"/>
+      </svg>
+      Editar Itens
+    </a>
+  </div>
+</article>

@@ -39,8 +39,8 @@ function bottomSheet() {
     },
 
     closeSheet() {
-      // Delega para appShell() via escopo pai
-      this.$parent.closeSheet();
+      // Altera o estado herdado de appShell() diretamente no Alpine v3
+      this.sheetOpen = false;
       // Focus restoration: retorna ao FAB
       this.$nextTick(() => {
         const fab = document.getElementById('fab-create');

@@ -1,0 +1,354 @@
+{% extends "base.html" %}
+{% load routines_tags %}
+{% block title %}
+  {% if is_edit_mode %}Editar Rotina{% else %}Nova Rotina{% endif %} — Autismo em Foco
+{% endblock %}
+
+{% block extra_head %}
+<style>
+  .pic-item { touch-action: pan-y; }
+  .pic-item.sortable-chosen { background: var(--color-primary-muted, #e0f7f5); }
+  .drag-handle { cursor: grab; touch-action: none; }
+  .drag-handle:active { cursor: grabbing; }
+</style>
+{% endblock %}
+
+{% block content %}
+{# IMPORTANTE: sem x-init explícito — Alpine chama init() automaticamente #}
+<div class="px-4 pb-8" x-data="routineBuilder()" id="routine-builder-root">
+
+  {# Cabeçalho #}
+  <header class="pt-4 pb-5 flex items-center gap-3">
+    <a href="/routines/"
+       class="w-9 h-9 flex items-center justify-center rounded-full hover:bg-surface-variant transition-colors text-on-surface"
+       aria-label="Voltar para rotinas" id="btn-back-routines">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18"/>
+      </svg>
+    </a>
+    <h1 class="text-title font-semibold text-on-surface">
+      {% if is_edit_mode %}Editar Rotina{% else %}Nova Rotina{% endif %}
+    </h1>
+  </header>
+
+  {# Campo Título #}
+  <div class="mb-6">
+    <label for="routine-title" class="block text-body font-medium text-on-surface mb-2">Nome da rotina</label>
+    <input type="text" id="routine-title" name="title" x-model="title" maxlength="100"
+           placeholder="Ex: Manhã do Banho, Hora de Dormir..."
+           class="w-full rounded-input border border-border bg-surface text-on-surface px-4 py-3 text-body placeholder:text-on-surface-muted focus:outline-none focus:ring-2 focus:ring-primary transition-shadow"
+           autocomplete="off" aria-required="true" aria-describedby="title-hint">
+    <p id="title-hint" class="text-caption text-on-surface-muted mt-1">
+      <span x-text="title.length"></span>/100 caracteres
+    </p>
+  </div>
+
+  {# Timeline Vertical — DOM gerenciado pelo JS, SortableJS é soberano aqui #}
+  <section class="mb-6" aria-labelledby="timeline-heading">
+    <h2 id="timeline-heading" class="text-body font-medium text-on-surface mb-3">
+      Sequência da rotina
+      <span class="text-caption text-on-surface-muted">(segure ≡ para reordenar)</span>
+    </h2>
+
+    <div id="sortable-timeline"
+         class="rounded-card border-2 border-dashed border-border bg-surface-variant/50 min-h-[80px] p-2"
+         role="list" aria-label="Sequência de pictogramas">
+      {# Placeholder — controlado via JS #}
+      <div id="timeline-empty"
+           class="flex flex-col items-center justify-center py-6 text-center text-on-surface-muted">
+        <svg class="w-8 h-8 mb-2 opacity-40" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+        </svg>
+        <p class="text-caption">Toque nos pictogramas abaixo para adicionar</p>
+      </div>
+    </div>
+
+    <div class="flex justify-between mt-2 text-caption text-on-surface-muted">
+      <span><span x-text="count" class="font-semibold text-on-surface"></span>/15 pictogramas</span>
+      <span x-show="count >= 15" class="text-error font-medium" x-cloak>Limite atingido</span>
+    </div>
+  </section>
+
+  {# Galeria de Pictogramas — Alpine x-for é usado SOMENTE aqui #}
+  <section aria-labelledby="gallery-heading">
+    <h2 id="gallery-heading" class="text-body font-medium text-on-surface mb-3">Adicionar pictograma</h2>
+
+    <div class="flex gap-2 overflow-x-auto pb-2 mb-4" role="tablist" aria-label="Categorias">
+      {% for category in categories %}
+      <button @click="activeCategory = '{{ category.id }}'"
+              :class="activeCategory === '{{ category.id }}' ? 'bg-primary text-white shadow-sm' : 'bg-surface-variant text-on-surface hover:bg-border'"
+              class="flex-shrink-0 px-4 py-2 rounded-button text-body transition-all duration-150 font-medium"
+              role="tab" :aria-selected="activeCategory === '{{ category.id }}'"
+              id="tab-{{ category.id }}">
+        {{ category.name }}
+      </button>
+      {% endfor %}
+    </div>
+
+    {% for category in categories %}
+    <div id="grid-{{ category.id }}" class="grid grid-cols-4 gap-3"
+         x-show="activeCategory === '{{ category.id }}'" x-cloak
+         role="tabpanel" :aria-labelledby="'tab-{{ category.id }}'">
+      <template x-for="pic in getCategoryPics('{{ category.id }}')" :key="pic.id">
+        <button type="button" @click="addPic(pic)"
+                :disabled="count >= 15 || inTimeline(pic.id)"
+                :class="(count >= 15 || inTimeline(pic.id)) ? 'opacity-40 cursor-not-allowed' : 'hover:shadow-md hover:scale-105 active:scale-95'"
+                class="flex flex-col items-center gap-1 p-2 bg-surface rounded-card border border-border transition-all duration-150"
+                :aria-label="`Adicionar ${pic.name}`" :id="`pb-${pic.id}`">
+          <div class="w-14 h-14 rounded-card overflow-hidden bg-surface-variant flex items-center justify-center">
+            <img :src="pic.image_url" :alt="pic.name" class="w-full h-full object-contain p-1" loading="lazy"
+                 @error="$event.target.src='/static/images/pictogram-placeholder.svg'">
+          </div>
+          <span class="text-caption text-on-surface text-center leading-tight line-clamp-2" x-text="pic.name"></span>
+          <span x-show="inTimeline(pic.id)" class="text-caption text-primary font-semibold" x-cloak>✓</span>
+        </button>
+      </template>
+    </div>
+    {% endfor %}
+  </section>
+
+  {# Erros #}
+  <div x-show="Object.keys(errors).length > 0" x-cloak
+       class="mt-4 p-3 rounded-card bg-error/10 border border-error/30" role="alert" aria-live="assertive">
+    <template x-for="(msgs, field) in errors" :key="field">
+      <p class="text-body text-error" x-text="msgs[0]"></p>
+    </template>
+  </div>
+
+  {# Botão Salvar #}
+  <div class="mt-6">
+    <button type="button" @click="save()" :disabled="saving || !isValid()"
+            class="w-full py-4 rounded-button bg-primary text-white font-semibold text-body shadow-sm hover:opacity-90 active:scale-[0.98] transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
+            id="btn-save-routine" :aria-busy="saving">
+      <span x-show="!saving" x-cloak>
+        {% if is_edit_mode %}Salvar alterações{% else %}Salvar rotina{% endif %}
+      </span>
+      <span x-show="saving" class="flex items-center justify-center gap-2" x-cloak>
+        <svg class="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+        </svg>
+        Salvando...
+      </span>
+    </button>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  var PICTOGRAMS_BY_CATEGORY = {{ pictograms_by_category|jsonify|safe }};
+  var INITIAL_ROUTINE = {{ routine|jsonify_or_null|safe }};
+  var INITIAL_ITEMS   = {{ items|jsonify|safe }};
+  var IS_EDIT_MODE    = {{ is_edit_mode|yesno:"true,false" }};
+  var ROUTINE_ID      = "{{ routine.id|default:'' }}";
+
+  function routineBuilder() {
+    return {
+      title: INITIAL_ROUTINE ? INITIAL_ROUTINE.title : '',
+      activeCategory: '',
+      saving: false,
+      errors: {},
+
+      // IDs presentes na timeline — Array para ordenação; usado pela galeria
+      _ids: [],
+      get count() { return this._ids.length; },
+      inTimeline(id) { return this._ids.includes(id); },
+
+      // ── Init (chamado automaticamente pelo Alpine) ───────────────────
+      init() {
+        const keys = Object.keys(PICTOGRAMS_BY_CATEGORY);
+        if (keys.length) this.activeCategory = keys[0];
+
+        const container = document.getElementById('sortable-timeline');
+        const empty     = document.getElementById('timeline-empty');
+
+        // Pré-popular no modo edição
+        if (IS_EDIT_MODE && INITIAL_ITEMS.length > 0) {
+          INITIAL_ITEMS.forEach(item => {
+            this._appendCard(container, {
+              id: item.pictogram_id,
+              name: item.pictogram_name || '',
+              image_url: item.pictogram_image_url || '',
+            });
+          });
+        }
+        this._syncEmpty(container, empty);
+
+        // Carregar SortableJS dinamicamente (suporta navegação HTMX sem reload)
+        this._loadSortable(() => this._initSortable(container));
+      },
+
+      _loadSortable(callback) {
+        if (window.Sortable) {
+          callback();
+          return;
+        }
+        // Evitar múltiplas injeções paralelas
+        if (document.getElementById('sortablejs-cdn')) {
+          document.getElementById('sortablejs-cdn').addEventListener('load', callback, { once: true });
+          return;
+        }
+        const script = document.createElement('script');
+        script.id  = 'sortablejs-cdn';
+        script.src = 'https://cdn.jsdelivr.net/npm/sortablejs@1.15.6/Sortable.min.js';
+        script.addEventListener('load', callback, { once: true });
+        document.head.appendChild(script);
+      },
+
+      _initSortable(container) {
+        if (!container) container = document.getElementById('sortable-timeline');
+        Sortable.create(container, {
+          animation: 150,
+          handle: '.drag-handle',
+          draggable: '.pic-item',
+          filter: '.btn-remove',
+          ghostClass: 'opacity-30',
+          chosenClass: 'shadow-lg',
+          onEnd: () => {
+            this._ids = Array.from(
+              container.querySelectorAll('.pic-item')
+            ).map(el => el.dataset.id);
+            this._refreshStepNumbers(container);
+          },
+        });
+      },
+
+      // ── DOM helpers ─────────────────────────────────────────────────
+      _appendCard(container, pic) {
+        const card = document.createElement('div');
+        card.className = 'pic-item flex items-center gap-3 bg-surface rounded-card border border-border px-3 py-2 mb-2';
+        card.dataset.id = pic.id;
+        card.setAttribute('role', 'listitem');
+
+        card.innerHTML = `
+          <span class="drag-handle flex-shrink-0 text-on-surface-muted select-none px-1"
+                aria-label="Arrastar para reordenar" title="Arrastar">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+              <circle cx="9"  cy="5"  r="1.5"/><circle cx="15" cy="5"  r="1.5"/>
+              <circle cx="9"  cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/>
+              <circle cx="9"  cy="19" r="1.5"/><circle cx="15" cy="19" r="1.5"/>
+            </svg>
+          </span>
+          <span class="step-num flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary text-caption font-bold flex items-center justify-center">1</span>
+          <div class="w-11 h-11 flex-shrink-0 rounded-card overflow-hidden bg-surface-variant border border-border">
+            <img src="${this._ea(pic.image_url)}" alt="${this._ea(pic.name)}"
+                 class="w-full h-full object-contain p-0.5"
+                 onerror="this.src='/static/images/pictogram-placeholder.svg'">
+          </div>
+          <span class="flex-1 text-body text-on-surface truncate">${this._eh(pic.name)}</span>
+          <button type="button"
+                  class="btn-remove flex-shrink-0 w-8 h-8 rounded-full bg-error/10 text-error flex items-center justify-center hover:bg-error hover:text-white transition-colors"
+                  aria-label="Remover ${this._ea(pic.name)}">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/>
+            </svg>
+          </button>`;
+
+        card.querySelector('.btn-remove').addEventListener('click', (e) => {
+          e.stopPropagation();
+          this._removeCard(card, pic.id);
+        });
+
+        container.appendChild(card);
+        this._ids.push(pic.id);
+        this._refreshStepNumbers(container);
+      },
+
+      _removeCard(card, picId) {
+        const container = document.getElementById('sortable-timeline');
+        const empty     = document.getElementById('timeline-empty');
+        card.remove();
+        this._ids = this._ids.filter(id => id !== picId);
+        this._refreshStepNumbers(container);
+        this._syncEmpty(container, empty);
+      },
+
+      _refreshStepNumbers(container) {
+        container.querySelectorAll('.pic-item .step-num').forEach((el, i) => {
+          el.textContent = i + 1;
+        });
+      },
+
+      _syncEmpty(container, empty) {
+        const hasItems = container.querySelectorAll('.pic-item').length > 0;
+        empty.style.display = hasItems ? 'none' : '';
+      },
+
+      // Escapar atributo e HTML
+      _ea(s) { return String(s).replace(/"/g, '&quot;').replace(/'/g, '&#39;'); },
+      _eh(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; },
+
+      // ── Galeria ─────────────────────────────────────────────────────
+      getCategoryPics(catId) {
+        return PICTOGRAMS_BY_CATEGORY[catId] || [];
+      },
+
+      addPic(pic) {
+        if (this._ids.length >= 15 || this.inTimeline(pic.id)) return;
+        const container = document.getElementById('sortable-timeline');
+        const empty     = document.getElementById('timeline-empty');
+        this._appendCard(container, pic);
+        this._syncEmpty(container, empty);
+        this.errors = {};
+      },
+
+      // ── Validação e Salvar ───────────────────────────────────────────
+      isValid() {
+        return this.title.trim().length > 0 && this._ids.length > 0;
+      },
+
+      async save() {
+        this.errors = {};
+
+        if (!this.title.trim()) {
+          this.errors = { title: ['O título da rotina é obrigatório.'] }; return;
+        }
+        if (this.title.trim().length > 100) {
+          this.errors = { title: ['O título deve ter no máximo 100 caracteres.'] }; return;
+        }
+
+        // Ler ordem real do DOM no momento do save
+        const container = document.getElementById('sortable-timeline');
+        const orderedIds = Array.from(
+          container.querySelectorAll('.pic-item')
+        ).map(el => el.dataset.id);
+
+        if (orderedIds.length === 0) {
+          this.errors = { pictogram_ids: ['Adicione ao menos um pictograma à rotina.'] }; return;
+        }
+        if (orderedIds.length > 15) {
+          this.errors = { pictogram_ids: ['Máximo de 15 pictogramas por rotina.'] }; return;
+        }
+
+        this.saving = true;
+        try {
+          const payload = { title: this.title.trim(), pictogram_ids: orderedIds };
+          if (IS_EDIT_MODE && ROUTINE_ID) payload.routine_id = ROUTINE_ID;
+
+          const resp = await fetch('/routines/save/', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRFToken': document.cookie.match(/csrftoken=([^;]+)/)?.[1] || '',
+            },
+            body: JSON.stringify(payload),
+          });
+          const data = await resp.json();
+
+          if (resp.ok && data.success) {
+            window.location.href = data.redirect || '/routines/';
+          } else {
+            this.errors = data.details || { _: [data.message || 'Erro ao salvar.'] };
+          }
+        } catch {
+          this.errors = { _: ['Erro de conexão. Verifique sua internet e tente novamente.'] };
+        } finally {
+          this.saving = false;
+        }
+      },
+    };
+  }
+</script>
+{% endblock %}

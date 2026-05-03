@@ -27,13 +27,13 @@
 
 **Purpose**: Create tables, RLS policies, and seed pictogram data. Blocks all other work.
 
-- [ ] T001 [supabase] Create migration for `pictogram_categories` table (id UUID PK, name TEXT, display_order INT) with RLS: SELECT público, INSERT/UPDATE/DELETE service_role
-- [ ] T002 [P] [supabase] Create migration for `pictograms` table (id UUID PK, category_id UUID FK → pictogram_categories, name TEXT, image_url TEXT) with RLS: SELECT público, INSERT/UPDATE/DELETE service_role
-- [ ] T003 [P] [supabase] Create migration for `routines` table (id UUID PK, parent_id UUID NOT NULL, title VARCHAR(100), created_at TIMESTAMPTZ, updated_at TIMESTAMPTZ) with RLS: all CRUD filtered by parent_id = auth.uid()
-- [ ] T004 [P] [supabase] Create migration for `routine_items` table (id UUID PK, routine_id UUID FK → routines ON DELETE CASCADE, pictogram_id UUID FK → pictograms, order_position INT CHECK ≥ 0) with RLS: ownership via join on routines.parent_id
-- [ ] T005 [supabase] Add index `idx_routines_parent_id` ON routines(parent_id) and `idx_routine_items_routine` ON routine_items(routine_id, order_position)
-- [ ] T006 [supabase] Seed 7 pictogram categories (Higiene, Alimentação, Escola, Lazer, Terapia, Sono, Outros) with display_order 1-7
-- [ ] T007 [empathy] [supabase] Define and insert 70 seed pictograms (10 per category × 7 categories) with empathetic Portuguese names into `pictograms` table with Supabase Storage image URLs
+- [x] T001 [supabase] Create migration for `pictogram_categories` table (id UUID PK, name TEXT, display_order INT) with RLS: SELECT público, INSERT/UPDATE/DELETE service_role
+- [x] T002 [P] [supabase] Create migration for `pictograms` table (id UUID PK, category_id UUID FK → pictogram_categories, name TEXT, image_url TEXT) with RLS: SELECT público, INSERT/UPDATE/DELETE service_role
+- [x] T003 [P] [supabase] Create migration for `routines` table (id UUID PK, parent_id UUID NOT NULL, title VARCHAR(100), created_at TIMESTAMPTZ, updated_at TIMESTAMPTZ) with RLS: all CRUD filtered by parent_id = auth.uid()
+- [x] T004 [P] [supabase] Create migration for `routine_items` table (id UUID PK, routine_id UUID FK → routines ON DELETE CASCADE, pictogram_id UUID FK → pictograms, order_position INT CHECK ≥ 0) with RLS: ownership via join on routines.parent_id
+- [x] T005 [supabase] Add index `idx_routines_parent_id` ON routines(parent_id) and `idx_routine_items_routine` ON routine_items(routine_id, order_position)
+- [x] T006 [supabase] Seed 7 pictogram categories (Higiene, Alimentação, Escola, Lazer, Terapia, Sono, Outros) with display_order 1-7
+- [x] T007 [empathy] [supabase] Define and insert 70 seed pictograms (10 per category × 7 categories) with empathetic Portuguese names into `pictograms` table with Supabase Storage image URLs
 
 **Checkpoint**: Supabase schema ready — 4 tables with RLS policies + seed data populated.
 
@@ -45,14 +45,14 @@
 
 **⚠️ CRITICAL**: No user story template/UI work can begin until the service layer skeleton exists.
 
-- [ ] T008 [django] Add `reportlab>=4.0` to `requirements.txt` and verify import works in Django shell
-- [ ] T009 [supabase] Implement `get_supabase_client()` helper (anon key) in `src/apps/routines/services.py` — pattern: `create_client(settings.SUPABASE_URL, settings.SUPABASE_KEY)`
-- [ ] T010 [P] [supabase] Implement `get_admin_client()` helper (service_role key) in `src/apps/routines/services.py` — pattern from `apps/auth/services.py`
-- [ ] T011 [django] Define type aliases and dataclasses for Routine, RoutineItem, Pictogram, Category in `src/apps/routines/services.py` with strict type hints (e.g., `RoutineDict = TypedDict(...)`)
-- [ ] T012 [django] Rewrite `src/apps/routines/urls.py` with named routes: `routine_list` (GET /), `routine_builder` (GET /create/, GET /<uuid:id>/), `routine_save` (POST /save/), `routine_rename` (PATCH /<uuid:id>/rename/), `routine_delete` (DELETE /<uuid:id>/delete/), `routine_export_pdf` (GET /<uuid:id>/export/)
-- [ ] T013 [django] Register routines URLs in `src/config/urls.py` under the `routines/` prefix (already exists — verify, update if needed)
-- [ ] T014 [django] Skeleton views in `src/apps/routines/views.py` with `@require_GET`/`@require_POST` decorators and `TemplateResponse` placeholders — each view delegates to `routine_service.py` stubs
-- [ ] T015 [django] Verify `LoginRequiredMiddleware` covers all `/routines/` routes (check `LOGIN_EXEMPT_URLS` in `src/config/settings/base.py` — routines routes should NOT be exempt)
+- [x] T008 [django] Add `reportlab>=4.0` to `requirements.txt` and verify import works in Django shell
+- [x] T009 [supabase] Implement `get_supabase_client()` helper (anon key) in `src/apps/routines/services.py` — pattern: `create_client(settings.SUPABASE_URL, settings.SUPABASE_KEY)`
+- [x] T010 [P] [supabase] Implement `get_admin_client()` helper (service_role key) in `src/apps/routines/services.py` — pattern from `apps/auth/services.py`
+- [x] T011 [django] Define type aliases and dataclasses for Routine, RoutineItem, Pictogram, Category in `src/apps/routines/services.py` with strict type hints (e.g., `RoutineDict = TypedDict(...)`)
+- [x] T012 [django] Rewrite `src/apps/routines/urls.py` with named routes: `routine_list` (GET /), `routine_builder` (GET /create/, GET /<uuid:id>/), `routine_save` (POST /save/), `routine_rename` (PATCH /<uuid:id>/rename/), `routine_delete` (DELETE /<uuid:id>/delete/), `routine_export_pdf` (GET /<uuid:id>/export/)
+- [x] T013 [django] Register routines URLs in `src/config/urls.py` under the `routines/` prefix (already exists — verify, update if needed)
+- [x] T014 [django] Skeleton views in `src/apps/routines/views.py` with `@require_GET`/`@require_POST` decorators and `TemplateResponse` placeholders — each view delegates to `routine_service.py` stubs
+- [x] T015 [django] Verify `LoginRequiredMiddleware` covers all `/routines/` routes (check `LOGIN_EXEMPT_URLS` in `src/config/settings/base.py` — routines routes should NOT be exempt)
 
 **Checkpoint**: Foundation ready — Supabase client initialized, URL routing wired, views skeleton created, all gated behind auth middleware.
 
@@ -68,23 +68,23 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T016 [P] [qa] [US1] Contract test for POST /routines/save/ (create mode) in `src/apps/routines/tests/test_contract_save.py` — verify 201 on valid payload, 400 on missing title/pictogram_ids, 400 on >15 items, 401 on no session
+- [x] T016 [P] [qa] [US1] Contract test for POST /routines/save/ (create mode) in `src/apps/routines/tests/test_contract_save.py` — verify 201 on valid payload, 400 on missing title/pictogram_ids, 400 on >15 items, 401 on no session
 - [ ] T017 [P] [qa] [US1] Integration test for full create flow in `src/apps/routines/tests/test_integration_us1.py` — call `routine_service.save_routine()` → verify routine + items persisted in Supabase
 
 ### Implementation for User Story 1
 
-- [ ] T018 [supabase] [US1] Implement `list_categories()` in `src/apps/routines/services.py` — SELECT * FROM pictogram_categories ORDER BY display_order — returns list[dict]
-- [ ] T019 [P] [supabase] [US1] Implement `list_pictograms_by_category(category_id)` in `src/apps/routines/services.py` — SELECT * FROM pictograms WHERE category_id = {id} — returns list[dict]
-- [ ] T020 [P] [supabase] [US1] Implement `validate_pictogram_ids(pictogram_ids: list[str]) -> bool` in `src/apps/routines/services.py` — verifies all UUIDs exist in pictograms table, returns False if any missing
-- [ ] T021 [supabase] [US1] Implement `save_routine(parent_id: str, title: str, pictogram_ids: list[str], routine_id: str | None = None) -> dict` in `src/apps/routines/services.py` — validates title (1-100 chars), validates pictogram_ids (1-15, all valid), batch deletes old items if edit, inserts routine/items, returns {"success": True, "routine_id": str, "title": str, "pictogram_count": int}
-- [ ] T022 [django] [US1] Implement `routine_save` view in `src/apps/routines/views.py` — POST-only, extracts parent_id from session cookie (JWT decode), parses JSON body {title, pictogram_ids}, delegates to `routine_service.save_routine()`, returns JsonResponse
-- [ ] T023 [django] [US1] Implement `routine_builder` view in `src/apps/routines/views.py` — GET, renders `routine_builder.html` with context: {categories: list_categories(), pictograms_by_category: dict, routine: None (create mode)}
-- [ ] T024 [frontend] [US1] Create `src/apps/routines/templates/routines/routine_list.html` — extends base.html, placeholder for mural (Phase 5 will expand), for now just shows a link to `/routines/create/`
-- [ ] T025 [frontend] [US1] Create `src/apps/routines/templates/routines/routine_builder.html` — extends base.html, contains Alpine.js x-data with {title, items[], isDirty, categories, pictogramsByCategory}
-- [ ] T026 [frontend] [US1] Implement category tab drawer in `routine_builder.html` — horizontal scrollable tabs (Higiene, Alimentação, ...) using Alpine.js `x-show` / `:class` to switch active category
-- [ ] T027 [frontend] [US1] Implement pictogram grid in `routine_builder.html` — grid of clickable pictogram cards (imagem + nome) filtered by active category tab; @click adds to items[]
-- [ ] T028 [frontend] [US1] Implement timeline display in `routine_builder.html` — vertical list rendering `items` array with `<template x-for>`, showing pictogram image + name + remove button (X)
-- [ ] T029 [frontend] [US1] Implement save button logic in `routine_builder.html` — `:disabled="!title.trim() || items.length === 0"`, @click calls `fetch('/routines/save/', {method: 'POST', body: JSON.stringify({...})})`, on success redirects to `/routines/`
+- [x] T018 [supabase] [US1] Implement `list_categories()` in `src/apps/routines/services.py` — SELECT * FROM pictogram_categories ORDER BY display_order — returns list[dict]
+- [x] T019 [P] [supabase] [US1] Implement `list_pictograms_by_category(category_id)` in `src/apps/routines/services.py` — SELECT * FROM pictograms WHERE category_id = {id} — returns list[dict]
+- [x] T020 [P] [supabase] [US1] Implement `validate_pictogram_ids(pictogram_ids: list[str]) -> bool` in `src/apps/routines/services.py` — verifies all UUIDs exist in pictograms table, returns False if any missing
+- [x] T021 [supabase] [US1] Implement `save_routine(parent_id: str, title: str, pictogram_ids: list[str], routine_id: str | None = None) -> dict` in `src/apps/routines/services.py` — validates title (1-100 chars), validates pictogram_ids (1-15, all valid), batch deletes old items if edit, inserts routine/items, returns {"success": True, "routine_id": str, "title": str, "pictogram_count": int}
+- [x] T022 [django] [US1] Implement `routine_save` view in `src/apps/routines/views.py` — POST-only, extracts parent_id from session cookie (JWT decode), parses JSON body {title, pictogram_ids}, delegates to `routine_service.save_routine()`, returns JsonResponse
+- [x] T023 [django] [US1] Implement `routine_builder` view in `src/apps/routines/views.py` — GET, renders `routine_builder.html` with context: {categories: list_categories(), pictograms_by_category: dict, routine: None (create mode)}
+- [x] T024 [frontend] [US1] Create `src/apps/routines/templates/routines/routine_list.html` — extends base.html, placeholder for mural (Phase 5 will expand), for now just shows a link to `/routines/create/`
+- [x] T025 [frontend] [US1] Create `src/apps/routines/templates/routines/routine_builder.html` — extends base.html, contains Alpine.js x-data with {title, items[], isDirty, categories, pictogramsByCategory}
+- [x] T026 [frontend] [US1] Implement category tab drawer in `routine_builder.html` — horizontal scrollable tabs (Higiene, Alimentação, ...) using Alpine.js `x-show` / `:class` to switch active category
+- [x] T027 [frontend] [US1] Implement pictogram grid in `routine_builder.html` — grid of clickable pictogram cards (imagem + nome) filtered by active category tab; @click adds to items[]
+- [x] T028 [frontend] [US1] Implement timeline display in `routine_builder.html` — vertical list rendering `items` array with `<template x-for>`, showing pictogram image + name + remove button (X)
+- [x] T029 [frontend] [US1] Implement save button logic in `routine_builder.html` — `:disabled="!title.trim() || items.length === 0"`, @click calls `fetch('/routines/save/', {method: 'POST', body: JSON.stringify({...})})`, on success redirects to `/routines/`
 - [ ] T030 [frontend] [US1] Create `src/static/js/routine-builder.js` — Alpine.data('routineBuilder', () => ({...})) with full state management: title, items[], addItem(), removeItem(), save(), isDirty detection
 - [ ] T031 [empathy] [US1] Write empathetic empty state copy and CTA text in `src/apps/routines/templates/routines/routine_list.html` — "As rotinas visuais reduzem a ansiedade e trazem previsibilidade ao dia a dia da criança." + button "Criar Minha Primeira Rotina"
 - [ ] T032 [empathy] [US1] Review and refine Portuguese labels in `src/apps/routines/templates/routines/routine_builder.html` — title placeholder "Ex: Hora do Banho", category tab names, Save button text (Salvar Rotina), remove button aria-label — for empathetic tone per ABA domain conventions
@@ -106,10 +106,10 @@
 
 ### Implementation for User Story 2
 
-- [ ] T035 [supabase] [US2] Implement `get_routine(routine_id: str, parent_id: str) -> dict | None` in `src/apps/routines/services.py` — SELECT routine + LEFT JOIN routine_items + pictograms, ordered by order_position, filtered by parent_id
-- [ ] T036 [supabase] [US2] Implement `get_routine_items(routine_id: str) -> list[dict]` in `src/apps/routines/services.py` — SELECT routine_items JOIN pictograms WHERE routine_id, ORDER BY order_position
-- [ ] T037 [django] [US2] Update `routine_builder` view in `src/apps/routines/views.py` to support edit mode — when `routine_id` URL param present, call `routine_service.get_routine()`, pass {routine: {...}, items: [...]} to template context, pre-fill Alpine.js state via `x-data` JSON
-- [ ] T038 [frontend] [US2] Initialize SortableJS in `routine-builder.js` — `x-init="initSortable()"` on timeline container, `onUpdate` callback updates `items[]` array preserving Alpine reactivity
+- [x] T035 [supabase] [US2] Implement `get_routine(routine_id: str, parent_id: str) -> dict | None` in `src/apps/routines/services.py` — SELECT routine + LEFT JOIN routine_items + pictograms, ordered by order_position, filtered by parent_id
+- [x] T036 [supabase] [US2] Implement `get_routine_items(routine_id: str) -> list[dict]` in `src/apps/routines/services.py` — SELECT routine_items JOIN pictograms WHERE routine_id, ORDER BY order_position
+- [x] T037 [django] [US2] Update `routine_builder` view in `src/apps/routines/views.py` to support edit mode — when `routine_id` URL param present, call `routine_service.get_routine()`, pass {routine: {...}, items: [...]} to template context, pre-fill Alpine.js state via `x-data` JSON
+- [x] T038 [frontend] [US2] Initialize SortableJS in `routine-builder.js` — `x-init="initSortable()"` on timeline container, `onUpdate` callback updates `items[]` array preserving Alpine reactivity
 - [ ] T039 [frontend] [US2] Add `isDirty` tracking in `routine-builder.js` — compare current {title, items[].id order} against initial state loaded from server; set `isDirty = true` on first change
 - [ ] T040 [frontend] [US2] Implement unsaved changes confirmation in `routine-builder.js` — `window.addEventListener('beforeunload', ...)` + Alpine `@click` interception on back navigation when `isDirty`
 - [ ] T041 [frontend] [US2] Add drag handle visual affordance (6-dots grip icon) to each timeline item in `routine_builder.html` per sortable-js CSS convention
@@ -132,14 +132,14 @@
 
 ### Implementation for User Story 3
 
-- [ ] T045 [supabase] [US3] Implement `list_routines(parent_id: str) -> list[dict]` in `src/apps/routines/services.py` — SELECT * FROM routines WHERE parent_id, ORDER BY updated_at DESC, include count of items per routine (subquery or separate COUNT query)
-- [ ] T046 [supabase] [US3] Implement `rename_routine(routine_id: str, parent_id: str, new_title: str) -> dict` in `src/apps/routines/services.py` — validate title (1-100 chars, trimmed), UPDATE routines SET title + updated_at, log audit event
-- [ ] T047 [supabase] [US3] Implement `delete_routine(routine_id: str, parent_id: str) -> bool` in `src/apps/routines/services.py` — DELETE from routines WHERE id AND parent_id (RLS-safe), returns True if deleted, False if not found. ON DELETE CASCADE removes routine_items.
-- [ ] T048 [django] [US3] Implement `routine_list` view in `src/apps/routines/views.py` — GET, extracts parent_id from session, calls `routine_service.list_routines()`, renders `routine_list.html` with {routines: [...], child_name: str, has_routines: bool}
-- [ ] T049 [django] [US3] Implement `routine_rename` view in `src/apps/routines/views.py` — PATCH, parses JSON {title}, delegates to `routine_service.rename_routine()`, returns updated card HTML partial via HTMX
-- [ ] T050 [django] [US3] Implement `routine_delete` view in `src/apps/routines/views.py` — DELETE, delegates to `routine_service.delete_routine()`, returns 200 with empty body (HTMX removes card element from DOM via hx-swap="delete")
-- [ ] T051 [frontend] [US3] Build `routine_list.html` — extends base.html, shows header "Rotinas do(a) [Nome da Criança]", grid of routine cards, FAB button fixed bottom-right linking to /routines/create/
-- [ ] T052 [frontend] [US3] Create `src/apps/routines/templates/routines/partials/_routine_card.html` — HTMX partial for individual card: shows title, pictogram count, PDF export button, ellipsis menu with Rename/Delete options; uses hx-target/hx-swap for actions
+- [x] T045 [supabase] [US3] Implement `list_routines(parent_id: str) -> list[dict]` in `src/apps/routines/services.py` — SELECT * FROM routines WHERE parent_id, ORDER BY updated_at DESC, include count of items per routine (subquery or separate COUNT query)
+- [x] T046 [supabase] [US3] Implement `rename_routine(routine_id: str, parent_id: str, new_title: str) -> dict` in `src/apps/routines/services.py` — validate title (1-100 chars, trimmed), UPDATE routines SET title + updated_at, log audit event
+- [x] T047 [supabase] [US3] Implement `delete_routine(routine_id: str, parent_id: str) -> bool` in `src/apps/routines/services.py` — DELETE from routines WHERE id AND parent_id (RLS-safe), returns True if deleted, False if not found. ON DELETE CASCADE removes routine_items.
+- [x] T048 [django] [US3] Implement `routine_list` view in `src/apps/routines/views.py` — GET, extracts parent_id from session, calls `routine_service.list_routines()`, renders `routine_list.html` with {routines: [...], child_name: str, has_routines: bool}
+- [x] T049 [django] [US3] Implement `routine_rename` view in `src/apps/routines/views.py` — PATCH, parses JSON {title}, delegates to `routine_service.rename_routine()`, returns updated card HTML partial via HTMX
+- [x] T050 [django] [US3] Implement `routine_delete` view in `src/apps/routines/views.py` — DELETE, delegates to `routine_service.delete_routine()`, returns 200 with empty body (HTMX removes card element from DOM via hx-swap="delete")
+- [x] T051 [frontend] [US3] Build `routine_list.html` — extends base.html, shows header "Rotinas do(a) [Nome da Criança]", grid of routine cards, FAB button fixed bottom-right linking to /routines/create/
+- [x] T052 [frontend] [US3] Create `src/apps/routines/templates/routines/partials/_routine_card.html` — HTMX partial for individual card: shows title, pictogram count, PDF export button, ellipsis menu with Rename/Delete options; uses hx-target/hx-swap for actions
 - [ ] T053 [empathy] [US3] Create `src/apps/routines/templates/routines/partials/_empty_state.html` — HTMX partial: illustration SVG, empathetic copy (from US1), CTA button linking to /routines/create/. Shown when list_routines returns empty.
 - [ ] T054 [frontend] [US3] Implement inline rename in `_routine_card.html` — ellipsis → "Renomear" → Alpine.js toggle to show inline input → Enter/blur triggers PATCH to /routines/<uuid>/rename/ → HTMX updates card title
 - [ ] T055 [frontend] [US3] Implement delete confirmation in `_routine_card.html` — ellipsis → "Excluir" → `confirm('Tem certeza?')` → DELETE to /routines/<uuid>/delete/ → HTMX removes card, if last card swap in empty state via hx-swap-oob
@@ -163,9 +163,9 @@
 
 ### Implementation for User Story 4
 
-- [ ] T060 [supabase] [US4] Implement `get_routine_for_export(routine_id: str, parent_id: str) -> tuple[dict, list[dict]] | None` in `src/apps/routines/services.py` — fetch routine + items (with pictogram name + image_url) for PDF generation, returns (routine, items) or None
-- [ ] T061 [supabase] [US4] Implement `generate_routine_pdf(routine: dict, items: list[dict]) -> bytes` in `src/apps/routines/services.py` — uses `reportlab` Canvas A4 (210mm×297mm), draws title centered at top (Helvetica-Bold 18pt), draws each pictogram as image (50×50px) with name label (Helvetica 14pt), 1 per row, auto page break after 8 items, footer "Autismo em Foco — Gerado em DD/MM/AAAA"
-- [ ] T062 [django] [US4] Implement `routine_export_pdf` view in `src/apps/routines/views.py` — GET, extracts parent_id + routine_id from URL, calls `routine_service.get_routine_for_export()`, calls `routine_service.generate_routine_pdf()`, returns `FileResponse(pdf_bytes, content_type='application/pdf', filename='Rotina - {title}.pdf')` with Content-Disposition: attachment
+- [x] T060 [supabase] [US4] Implement `get_routine_for_export(routine_id: str, parent_id: str) -> tuple[dict, list[dict]] | None` in `src/apps/routines/services.py` — fetch routine + items (with pictogram name + image_url) for PDF generation, returns (routine, items) or None
+- [x] T061 [supabase] [US4] Implement `generate_routine_pdf(routine: dict, items: list[dict]) -> bytes` in `src/apps/routines/services.py` — uses `reportlab` Canvas A4 (210mm×297mm), draws title centered at top (Helvetica-Bold 18pt), draws each pictogram as image (50×50px) with name label (Helvetica 14pt), 1 per row, auto page break after 8 items, footer "Autismo em Foco — Gerado em DD/MM/AAAA"
+- [x] T062 [django] [US4] Implement `routine_export_pdf` view in `src/apps/routines/views.py` — GET, extracts parent_id + routine_id from URL, calls `routine_service.get_routine_for_export()`, calls `routine_service.generate_routine_pdf()`, returns `FileResponse(pdf_bytes, content_type='application/pdf', filename='Rotina - {title}.pdf')` with Content-Disposition: attachment
 - [ ] T063 [frontend] [US4] Add PDF export button to `_routine_card.html` — styled as secondary action button with PDF/download icon, hx-get to /routines/<uuid>/export/ with hx-target/_blank handling, or plain `<a>` tag with `download` attribute
 - [ ] T064 [frontend] [US4] Handle PDF generation error in `_routine_card.html` — on 500 response from export endpoint, show toast/alert: "Erro ao gerar PDF. Tente novamente." (edge case from spec)
 

@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}Minhas Rotinas — Autismo em Foco{% endblock %}
+
+{% block content %}
+<section
+  class="px-4 pb-6"
+  x-data="routineList()"
+  id="routine-list-section"
+>
+
+  {# ── Cabeçalho ──────────────────────────────────────────── #}
+  <header class="pt-4 pb-6">
+    <h1 class="text-headline font-bold text-on-surface">Minhas Rotinas</h1>
+    <p class="text-body text-on-surface-muted mt-1">
+      Organize e visualize a rotina diária de forma simples e visual.
+    </p>
+  </header>
+
+  {# ── Empty state ─────────────────────────────────────────── #}
+  {% if not has_routines %}
+  <div
+    id="empty-state"
+    class="flex flex-col items-center justify-center text-center py-16 px-4"
+  >
+    <div class="w-20 h-20 rounded-full bg-surface-variant flex items-center justify-center mb-4">
+      <svg class="w-10 h-10 text-on-surface-muted" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round"
+          d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
+      </svg>
+    </div>
+    <h2 class="text-title font-semibold text-on-surface mb-2">Nenhuma rotina criada</h2>
+    <p class="text-body text-on-surface-muted max-w-xs mb-6">
+      Crie sua primeira rotina visual para ajudar na organização do dia a dia.
+    </p>
+    <a
+      href="/routines/create/"
+      class="inline-flex items-center gap-2 bg-primary text-white font-semibold px-6 py-3 rounded-button shadow-sm hover:opacity-90 active:scale-95 transition-all duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
+      id="btn-create-first-routine"
+    >
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
+      </svg>
+      Criar primeira rotina
+    </a>
+  </div>
+  {% endif %}
+
+  {# ── Grid de cards ────────────────────────────────────────── #}
+  {% if has_routines %}
+  <div
+    id="routines-grid"
+    class="grid grid-cols-1 gap-4"
+    hx-on:showEmptyState="document.getElementById('routines-grid').classList.add('hidden'); document.getElementById('empty-state-fallback').classList.remove('hidden')"
+  >
+    {% for routine in routines %}
+      {% include "routines/partials/_routine_card.html" with routine=routine %}
+    {% endfor %}
+  </div>
+
+  {# Empty state após deletar todas (revelado via HX-Trigger) #}
+  <div id="empty-state-fallback" class="hidden flex flex-col items-center text-center py-16 px-4">
+    <p class="text-on-surface-muted mb-4">Todas as rotinas foram removidas.</p>
+    <a href="/routines/create/" class="btn-primary" id="btn-create-after-delete">Nova Rotina</a>
+  </div>
+  {% endif %}
+
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+{{ block.super }}
+<script>
+  function routineList() {
+    return {
+      init() {
+        // Escutar evento HX-Trigger de deletar última rotina
+        this.$el.addEventListener('showEmptyState', () => {
+          const grid = document.getElementById('routines-grid');
+          const fallback = document.getElementById('empty-state-fallback');
+          if (grid) grid.classList.add('hidden');
+          if (fallback) fallback.classList.remove('hidden');
+        });
+      }
+    };
+  }
+</script>
+{% endblock %}
